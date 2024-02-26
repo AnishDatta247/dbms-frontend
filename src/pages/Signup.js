@@ -16,25 +16,25 @@ const Signup = () => {
         <div className="flex gap-4 flex-col">
           <Link
             to="/signup/guest"
-            className="flex flex-col border-2 px-2 py-1 border-white hover:border-2 hover:border-blue-500 rounded-xl  hover:scale-[1.03] transition duration-200"
+            className="flex flex-col border-2 px-3 py-1 border-white hover:border-2 hover:border-blue-500 rounded-xl transition duration-200"
           >
-            <span className="font-semibold text-lg -mb-1">Guest</span>
+            <span className="font-semibold text-lg -mb-1">Guest Student</span>
             <span className="text-sm text-neutral-500 font-normal mb-1">
               You are not from IIT KGP but are participating.
             </span>
           </Link>
           <Link
             to="/signup/student"
-            className="flex flex-col border-2 px-2 py-1 border-white hover:border-2 hover:border-blue-500 rounded-xl  hover:scale-[1.03] transition duration-200"
+            className="flex flex-col border-2 px-3 py-1 border-white hover:border-2 hover:border-blue-500 rounded-xl transition duration-200"
           >
-            <span className="font-semibold text-lg -mb-1">Student</span>
+            <span className="font-semibold text-lg -mb-1">Native Student</span>
             <span className="text-sm text-neutral-500 font-normal mb-1">
               You are a student of IIT KGP.
             </span>
           </Link>
           <Link
             to="/signup/organizer"
-            className="flex flex-col border-2 px-2 py-1 border-white hover:border-2 hover:border-blue-500 rounded-xl  hover:scale-[1.03] transition duration-200"
+            className="flex flex-col border-2 px-3 py-1 border-white hover:border-2 hover:border-blue-500 rounded-xl transition duration-200"
           >
             <span className="font-semibold text-lg -mb-1">Organizer</span>
             <span className="text-sm text-neutral-500 font-normal mb-1">
