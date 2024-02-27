@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import Schedule from "../components/Schedule";
 import Accomodation from "../components/Accomodation";
+import Events from "../components/Events"
 import Profile from "../components/Profile";
 
 const Dashboard = () => {
@@ -100,7 +101,7 @@ const Dashboard = () => {
 
       <AppShell.Main>
         {tab === 0 ? (
-          <>HI</>
+          <Events />
         ) : tab === 1 ? (
           <Schedule />
         ) : tab === 2 ? (
