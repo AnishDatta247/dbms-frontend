@@ -1,4 +1,4 @@
-import { Select, Table } from "@mantine/core";
+import { Input, Select, Table, TextInput } from "@mantine/core";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 
@@ -47,7 +47,9 @@ const Schedule = () => {
   ];
 
   const [sortBy, setSortBy] = useState("start_date_time");
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     setData(
@@ -66,6 +68,14 @@ const Schedule = () => {
       })
     );
   }, [sortBy]);
+
+  useEffect(() => {
+    setFilteredData(
+      data.filter((event) =>
+        event.name.toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  }, [search, data]);
 
   const dateTimeFormatter = (dateTime) => {
     return format(dateTime, "do MMM yyyy, h:mm a");
@@ -87,6 +97,12 @@ const Schedule = () => {
           onChange={(value) => setSortBy(value)}
         />
       </div>
+      <TextInput
+        mt="lg"
+        placeholder="Search for event name"
+        value={search}
+        onChange={(e) => setSearch(e.currentTarget.value)}
+      />
       <Table striped highlightOnHover withTableBorder className="mt-6">
         <Table.Thead>
           <Table.Tr>
@@ -98,8 +114,8 @@ const Schedule = () => {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {data &&
-            data.map((event) => (
+          {filteredData &&
+            filteredData.map((event) => (
               <Table.Tr key={event.id}>
                 <Table.Td>{event.name}</Table.Td>
                 <Table.Td className="hidden md:block">{event.type}</Table.Td>

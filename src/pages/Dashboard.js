@@ -10,8 +10,11 @@ import {
 import { useState } from "react";
 import Schedule from "../components/Schedule";
 import Accomodation from "../components/Accomodation";
+import Profile from "../components/Profile";
 
 const Dashboard = () => {
+  const type = "native";
+
   const [opened, { toggle }] = useDisclosure();
   const [tab, setTab] = useState(() => {
     var prevTab = localStorage.getItem("tab") || 0;
@@ -64,18 +67,22 @@ const Dashboard = () => {
             <CalendarFold className="w-6 h-6" />
             <span className="font-semibold text-md">Schedule</span>
           </li>
-          <li
-            className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-              tab === 2 ? "bg-blue-200 text-blue-600" : ""
-            }`}
-            onClick={() => {
-              saveTab(2);
-              toggle();
-            }}
-          >
-            <BedDouble className="w-6 h-6" />
-            <span className="font-semibold text-md">Food and Accomodation</span>
-          </li>
+          {type === "guest" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 2 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(2);
+                toggle();
+              }}
+            >
+              <BedDouble className="w-6 h-6" />
+              <span className="font-semibold text-md">
+                Food and Accomodation
+              </span>
+            </li>
+          )}
           <li
             className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
               tab === 3 ? "bg-blue-200 text-blue-600" : ""
@@ -99,7 +106,7 @@ const Dashboard = () => {
         ) : tab === 2 ? (
           <Accomodation />
         ) : (
-          <>other</>
+          <Profile type={type} />
         )}
       </AppShell.Main>
     </AppShell>

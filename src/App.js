@@ -4,11 +4,9 @@ import Login from "./pages/Login";
 import "@mantine/core/styles.css";
 import { MantineProvider } from "@mantine/core";
 import Signup from "./pages/Signup";
-import SignupGuest from "./pages/SignupStudent";
 import SignupStudent from "./pages/SignupStudent";
 import SignupOrganizer from "./pages/SignupOrganizer";
 import Dashboard from "./pages/Dashboard";
-import Accomodation from "./components/Accomodation";
 
 export default function App() {
   return (

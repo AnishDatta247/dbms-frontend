@@ -78,6 +78,9 @@ const Accomodation = () => {
                   });
                 }
               }}
+              disabled={
+                input.food_type !== "none" && input.food_type !== "non-veg"
+              }
               checked={data.food_type === "non-veg"}
               label="Non-veg"
               value="non-veg"
@@ -92,6 +95,7 @@ const Accomodation = () => {
                   });
                 }
               }}
+              disabled={input.food_type !== "none" && input.food_type !== "veg"}
               checked={data.food_type === "veg"}
               label="Veg"
               value="veg"
