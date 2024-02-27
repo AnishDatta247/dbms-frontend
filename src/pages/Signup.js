@@ -1,5 +1,3 @@
-import { useForm } from "@mantine/form";
-import { TextInput, Button } from "@mantine/core";
 import { Link } from "react-router-dom";
 
 const Signup = () => {
@@ -15,7 +13,7 @@ const Signup = () => {
 
         <div className="flex gap-4 flex-col">
           <Link
-            to="/signup/guest"
+            to="/signup/guest-student"
             className="flex flex-col border-2 px-3 py-1 border-white hover:border-2 hover:border-blue-500 rounded-xl transition duration-200"
           >
             <span className="font-semibold text-lg -mb-1">Guest Student</span>
@@ -24,7 +22,7 @@ const Signup = () => {
             </span>
           </Link>
           <Link
-            to="/signup/student"
+            to="/signup/native-student"
             className="flex flex-col border-2 px-3 py-1 border-white hover:border-2 hover:border-blue-500 rounded-xl transition duration-200"
           >
             <span className="font-semibold text-lg -mb-1">Native Student</span>

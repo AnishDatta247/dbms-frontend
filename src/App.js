@@ -7,6 +7,8 @@ import Signup from "./pages/Signup";
 import SignupGuest from "./pages/SignupStudent";
 import SignupStudent from "./pages/SignupStudent";
 import SignupOrganizer from "./pages/SignupOrganizer";
+import Dashboard from "./pages/Dashboard";
+import Accomodation from "./components/Accomodation";
 
 export default function App() {
   return (
@@ -15,15 +17,16 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
-            path="/signup/guest"
+            path="/signup/guest-student"
             element={<SignupStudent type="guest" />}
           />
           <Route
-            path="/signup/student"
+            path="/signup/native-student"
             element={<SignupStudent type="native" />}
           />
           <Route path="/signup/organizer" element={<SignupOrganizer />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/" element={<div>Home</div>} />
         </Routes>
       </Router>

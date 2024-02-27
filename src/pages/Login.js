@@ -1,6 +1,7 @@
 import { useForm } from "@mantine/form";
 import { TextInput, Button } from "@mantine/core";
 import { Link } from "react-router-dom";
+import Logo from "../components/Logo";
 
 const Login = () => {
   const onSubmit = (values) => {
