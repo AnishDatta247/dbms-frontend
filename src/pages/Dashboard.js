@@ -197,9 +197,15 @@ const Dashboard = () => {
           <Accomodation />
         ) : tab === 3 ? (
           <Profile type={type} />
-        ) : (
+        ) : tab === 4 ? (
           <Event eid={eid} setTab={setTab} />
-        )}
+        ) : tab === 5 ? (
+          <AdminEvents />
+        ) : tab === 6 ? (
+          <AdminAccodomations />
+        ) : tab === 7 ? (
+          <AdminStudents />
+        ) : null}
       </AppShell.Main>
     </AppShell>
   );
