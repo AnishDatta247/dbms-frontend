@@ -12,7 +12,6 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     setLoading(true);
-    console.log(process.env.REACT_APP_FETCH_URL);
     await fetch(`${process.env.REACT_APP_FETCH_URL}/login`, {
       method: "POST",
       headers: {
@@ -74,7 +73,7 @@ const Login = () => {
           />
           <button
             type="submit"
-            disabled={loading}
+            // disabled={loading}
             className="bg-blue-500 px-4 py-2 rounded-md w-full text-white font-semibold text-sm mt-6"
           >
             Submit

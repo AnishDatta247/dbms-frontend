@@ -100,7 +100,7 @@ const SignupStudent = (props) => {
     setActive((current) => (current > 0 ? current - 1 : current));
   };
 
-  if (localStorage.getItem("access_token")) {
+  if (localStorage.getItem("access_acces_token")) {
     return <Navigate to="/dashboard" replace />;
   }
 

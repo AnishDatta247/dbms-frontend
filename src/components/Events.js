@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Events = (props) => {
+  console.log("User type is "+ props.type)
   const input = [
     {
       id: 1,
@@ -48,19 +49,25 @@ const Events = (props) => {
     },
   ];
 
-  const [data, setData] = useState(input);
+  
+
   const [filteredData, setFilteredData] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    if(!props.events) return;
     setFilteredData(
-      data.filter(
+      props.events.filter(
         (event) =>
           event.name.toLowerCase().includes(search.toLowerCase()) ||
           event.type.toLowerCase().includes(search.toLowerCase())
       )
     );
-  }, [search, data]);
+  }, [search, props.events]);
+
+  useEffect(() => {
+    console.log(props.events)
+  }, [props.events])
 
   const dateTimeFormatter = (dateTime) => {
     return format(dateTime, "do MMM yyyy, h:mm a");
@@ -71,7 +78,7 @@ const Events = (props) => {
       <div className="flex gap-2 p-4 items-center w-full">
         <Search className="w-4 h-4 text-neutral-400" />
         <TextInput
-          placeholder="Search for event name"
+          placeholder="Search for event name or category"
           className="w-full"
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
@@ -80,7 +87,7 @@ const Events = (props) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ">
         {filteredData.map((event) => (
           <Card
-            key={event.id}
+            key={event.eid}
             shadow="md"
             className="m-4 border shadow-md gap-1"
             radius="md"
@@ -103,7 +110,7 @@ const Events = (props) => {
             </div>
             <div className="flex justify-between items-center w-full">
               <span className="text-sm font-semibold">Registered</span>
-              <span>{event.registered === 0 ? "No" : "Yes"}</span>
+              <span>{!event.registered ? "No" : "Yes"}</span>
             </div>
             <Link
               className="w-full text-center bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-2"
@@ -111,7 +118,8 @@ const Events = (props) => {
               onClick={() => {
                 props.setTab((prev) => 4);
                 localStorage.setItem("tab", 4);
-                props.setEid(event.id);
+                localStorage.setItem("eid", event.eid);
+                props.setEid(event.eid);
               }}
             >
               Check Details
