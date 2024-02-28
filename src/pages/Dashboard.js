@@ -15,6 +15,9 @@ import Profile from "../components/Profile";
 import Event from "../components/Event";
 import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import AdminAccodomations from "../components/AdminAccomodations";
+import AdminStudents from "../components/AdminStudents";
+import AdminEvents from "../components/AdminEvents";
 
 const Dashboard = () => {
   const type = "admin";
