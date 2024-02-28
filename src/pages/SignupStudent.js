@@ -16,7 +16,7 @@ const SignupStudent = (props) => {
 
   const onSubmit = async (values) => {
     setLoading(true);
-    await fetch("http://10.109.10.13:8080/signup_student", {
+    await fetch(`${process.env.REACT_APP_FETCH_URL}/signup_student`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -100,7 +100,7 @@ const SignupStudent = (props) => {
     setActive((current) => (current > 0 ? current - 1 : current));
   };
 
-  if (localStorage.getItem("token")) {
+  if (localStorage.getItem("acces_token")) {
     return <Navigate to="/dashboard" replace />;
   }
 

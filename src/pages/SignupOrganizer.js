@@ -10,7 +10,7 @@ const SignupOrganizer = () => {
   const onSubmit = async (values) => {
     console.log(values);
     setLoading(true);
-    await fetch("http://10.145.18.167:8080/signup_organiser", {
+    await fetch(`${process.env.REACT_APP_FETCH_URL}/signup_organiser`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ const SignupOrganizer = () => {
     }),
   });
 
-  if (localStorage.getItem("token")) {
+  if (localStorage.getItem("access_token")) {
     return <Navigate to="/dashboard" replace />;
   }
 

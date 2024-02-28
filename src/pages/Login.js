@@ -12,7 +12,7 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     setLoading(true);
-    await fetch("http://10.109.10.13:8080/login", {
+    await fetch(`${process.env.REACT_APP_FETCH_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -72,7 +72,7 @@ const Login = () => {
           />
           <button
             type="submit"
-            disabled={loading}
+            // disabled={loading}
             className="bg-blue-500 px-4 py-2 rounded-md w-full text-white font-semibold text-sm mt-6"
           >
             Submit

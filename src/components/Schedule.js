@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const Schedule = () => {
+const Schedule = ({events}) => {
   const input = [
     {
       id: 1,
@@ -53,8 +53,9 @@ const Schedule = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    if(!events) return;
     setData(
-      input.sort((a, b) => {
+      events.sort((a, b) => {
         if (sortBy === "start_date_time") {
           return new Date(a.start_date_time) - new Date(b.start_date_time);
         } else if (sortBy === "end_date_time") {
@@ -68,7 +69,7 @@ const Schedule = () => {
         }
       })
     );
-  }, [sortBy]);
+  }, [events, sortBy]);
 
   useEffect(() => {
     setFilteredData(
@@ -126,7 +127,7 @@ const Schedule = () => {
                 <Table.Td>{dateTimeFormatter(event.start_date_time)}</Table.Td>
                 <Table.Td>{dateTimeFormatter(event.end_date_time)}</Table.Td>
                 <Table.Td className="hidden md:block">
-                  {event.registered === 0 ? "No" : "Yes"}
+                  {!event.registered ? "No" : "Yes"}
                 </Table.Td>
               </Table.Tr>
             ))}

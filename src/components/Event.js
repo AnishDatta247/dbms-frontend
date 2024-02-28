@@ -1,10 +1,13 @@
-import { Modal, Pill } from "@mantine/core";
+import { Modal, Pill, Select, Textarea } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
 import { ArrowLeft, IndianRupee } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Event = (props) => {
+  // console.log("User type is "+ props.Usertype)
   const input = {
     id: 1,
     name: "Overnite",
@@ -20,7 +23,7 @@ const Event = (props) => {
     volunteered: false,
   };
 
-  const [data, setData] = useState(input);
+  const [data, setData] = useState();
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
@@ -29,18 +32,108 @@ const Event = (props) => {
     return format(dateTime, "do MMM yyyy, h:mm a");
   };
 
-  const onClick1 = () => {
-    // Register
+  const form = useForm({
+    initialValues: {
+      role: "",
+    },
+    validate: {
+      role: (value) => (value.length > 0 ? null : "Role required"),
+    }
+  })
+
+  const onClick1 = () => { //register
+    let status
+    fetch(`${process.env.REACT_APP_FETCH_URL}/event/register_student/${props.eid}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => {
+        status = response.status
+        response.json()
+      })
+      .then((data) => {
+        if (status !== 200) {
+          toast.error(data.message);
+        }
+        else {
+          setData(prev => {
+            return { ...prev, registered: true }
+          })
+          // props.setEventsData(prev => (
+          //   prev.map(event => {
+          //     if(event.eid!==data.eid) return event;
+          //     else return {...event, registered: true}
+          //   })
+          // ))
+          toast.success("Registered for event!")
+        }
+      });
     close1();
   };
   const onClick2 = () => {
-    // Volunteer
+    let status
+    fetch(`${process.env.REACT_APP_FETCH_URL}/event/volunteer_student/${props.eid}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+      body: JSON.stringify({ role: form.values.role, info: getRoleInfo(form.values.role)})
+    })
+      .then((response) => {
+        status = response.status
+        response.json()
+      })
+      .then((data) => {
+        if (status !== 200) {
+          toast.error(data.message);
+        }
+        else {
+          setData(prev => {
+            return { ...prev, volunteered: true }
+          })
+          // props.setEventsData(prev => (
+          //   prev.map(event => {
+          //     if(event.eid!==data.eid) return event;
+          //     else return {...event, registered: true}
+          //   })
+          // ))
+          toast.success("Volunteering for event!")
+        }
+      });
     close2();
   };
   const onClick3 = () => {
     // Sponsor
     close3();
   };
+
+  const getRoleInfo = (role) => {
+    if(role==="Operations Manager") return "Operations Manager is responsible for the overall operations of the event. They are responsible for the smooth functioning of the event."
+    else if(role==="Logistics Coordinator") return "Logistics Coordinator is responsible for the logistics of the event. They are responsible for the transportation and storage of the event materials."
+    return "-"
+  }
+
+  useEffect(() => {
+    console.log(props.eid)
+    if (!props.eid) return;
+
+    fetch(`${process.env.REACT_APP_FETCH_URL}/event/${props.eid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data);
+        console.log(data)
+      });
+  }, [props.eid]);
 
   return (
     <div className="ml-4">
@@ -54,7 +147,7 @@ const Event = (props) => {
         <ArrowLeft className="w-4 h-4" />
         Back
       </button>
-      <div className="flex flex-col gap-4">
+      {data && <div className="flex flex-col gap-4">
         <div className="flex gap-4 items-center mt-4 mb-6">
           <div className="text-3xl font-semibold">{data.name}</div>
           <Pill className="font-semibold capitalize">{data.type}</Pill>
@@ -62,11 +155,11 @@ const Event = (props) => {
         <div className="flex gap-4 flex-wrap">
           <div className="flex flex-col mr-8">
             <span className="text-sm font-semibold">From</span>
-            <span>{dateTimeFormatter(data.start_date_time)}</span>
+            <span>{(data.start_date_time)}</span>
           </div>
           <div className="flex flex-col mr-8">
             <span className="text-sm font-semibold">To</span>
-            <span>{dateTimeFormatter(data.end_date_time)}</span>
+            <span>{(data.end_date_time)}</span>
           </div>
           <div className="flex flex-col mr-8">
             <span className="text-sm font-semibold">Location</span>
@@ -115,16 +208,19 @@ const Event = (props) => {
                   onClose={close2}
                   title="Confirm"
                 >
-                  Are you sure you want to volunteer for:
-                  <p className="font-medium">
-                    {" " + data.name} {"(" + data.type + ")"}
-                  </p>
-                  <button
-                    onClick={onClick2}
-                    className="mt-4 bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
-                  >
-                    Confirm
-                  </button>
+                  <form onSubmit={form.onSubmit((values) => onClick2(values))}>
+                    <Select label="Role" placeholder="Select volunteer role" data={[{ value: "Operations Manager", label: "Operations Manager" }, { value: "Logistics Coordinator", label: "Logistics Coordinator" }]} {...form.getInputProps("role")} />
+                    <div className="flex flex-col my-4">
+                      <span className="text-sm">Info</span>
+                      <span className="bg-neutral-300 rounded-md px-3 py-2 text-sm">{getRoleInfo(form.values.role)}</span>
+                    </div>
+                    <button
+                      action="submit"
+                      className="mt-4 bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
+                    >
+                      Confirm
+                    </button>
+                  </form>
                 </Modal>
                 <button
                   onClick={open2}
@@ -171,7 +267,7 @@ const Event = (props) => {
               </div>
             ))}
         </div>
-        <div className="flex flex-col mt-4 gap-1">
+        {data.first_prize && <div className="flex flex-col mt-4 gap-1">
           <span className="text-sm font-semibold">Prizes</span>
           <div className="flex gap-4">
             <span className="bg-yellow-500 px-2 py-1 text-sm rounded-full text-white font-semibold">
@@ -187,8 +283,8 @@ const Event = (props) => {
               {data.first_prize}
             </span>
           </div>
-        </div>
-      </div>
+        </div>}
+      </div>}
     </div>
   );
 };

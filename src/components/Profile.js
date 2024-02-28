@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const Profile = (props) => {
+const Profile = ({data, type}) => {
   const input = {
     sid: 123,
     email: "johndoe56@gmail.com",
@@ -19,26 +19,24 @@ const Profile = (props) => {
   //   phone: "1234567890",
   // };
 
-  const [data, setData] = useState(input);
-
   return (
     <div className="px-4 py-1">
-      <div className="flex flex-col">
+      {type && <div className="flex flex-col">
         <span className="font-semibold text-3xl">Profile</span>
         <span className="text-sm font-semibold text-neutral-500">
           {`${
-            props.type === "guest"
+            type === "guest"
               ? "Guest Student"
-              : props.type === "native"
+              : type === "native"
               ? "Native Student"
               : "Organizer"
           } Profile`}
         </span>
-      </div>
-      <div className="flex flex-col gap-6 w-full md:max-w-[800px] mt-8">
+      </div>}
+      {data && <div className="flex flex-col gap-6 w-full md:max-w-[800px] mt-8">
         <div className="flex gap-4 items-center">
           <span className="font-semibold  w-[170px]">{`${
-            props.type === "organizer" ? "Organizer" : "Student"
+            type === "organizer" ? "Organizer" : "Student"
           } ID`}</span>
           <div className="px-5 py-3 border border-neutral-300 rounded-lg text-sm w-full">
             {data.sid}
@@ -62,7 +60,7 @@ const Profile = (props) => {
             {data.phone}
           </div>
         </div>
-        {props.type !== "organizer" && (
+        {type !== "organizer" && (
           <div className="flex flex-col gap-6">
             <hr />
             <div className="flex gap-4 items-center">
@@ -91,7 +89,7 @@ const Profile = (props) => {
             </div>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 };

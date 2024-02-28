@@ -20,14 +20,60 @@ import AdminStudents from "../components/AdminStudents";
 import AdminEvents from "../components/AdminEvents";
 
 const Dashboard = () => {
-  const type = "admin";
+  const [type, setType] = useState("");
+  const [data, setData] = useState();
+  const [events, setEvents] = useState();
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_FETCH_URL}/profile`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.hasOwnProperty('sid'));
+        setData(data);
+        if(data.hasOwnProperty('sid')){
+          setType('student');
+        }
+        else if (data.hasOwnProperty('oid')){
+          setType('organiser');
+        }
+        else setType('admin');        
+      });
+  }, []);
 
+  useEffect(() => {
+    if(!type) return;
+    var base_url = process.env.REACT_APP_FETCH_URL;
+    if (type === 'student' || type === 'organiser')base_url+= "/event";
+    else base_url+= "/admin/events"
+    fetch(base_url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setEvents(data)
+      });
+  }, [type]);
+
+  console.log("user type is "+ type);
   const [opened, { toggle }] = useDisclosure();
   const [tab, setTab] = useState(() => {
     var prevTab = localStorage.getItem("tab") || 0;
     return parseInt(prevTab);
   });
-  const [eid, setEid] = useState();
+  const [eid, setEid] = useState(() => {
+    var eventId = localStorage.getItem("eid")
+    return eventId
+  });
 
   const saveTab = (tab) => {
     localStorage.setItem("tab", tab);
@@ -193,15 +239,16 @@ const Dashboard = () => {
 
       <AppShell.Main>
         {tab === 0 ? (
-          <Events setTab={setTab} setEid={setEid} />
+          console.log("type is "+ type),
+          <Events setTab={setTab} setEid={setEid} type={type} events={events}/>
         ) : tab === 1 ? (
-          <Schedule />
+          <Schedule events={events}/>
         ) : tab === 2 ? (
           <Accomodation />
         ) : tab === 3 ? (
-          <Profile type={type} />
+          <Profile type={type} data={data}/>
         ) : tab === 4 ? (
-          <Event eid={eid} setTab={setTab} />
+          <Event eid={eid} setTab={setTab} setEventsData={setEvents} />
         ) : tab === 5 ? (
           <AdminEvents />
         ) : tab === 6 ? (
