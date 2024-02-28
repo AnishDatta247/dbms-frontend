@@ -73,7 +73,8 @@ const Event = (props) => {
       });
     close1();
   };
-  const onClick2 = () => {
+
+  const onClick2 = () => { //volunteer
     let status
     fetch(`${process.env.REACT_APP_FETCH_URL}/event/volunteer_student/${props.eid}`, {
       method: "POST",
@@ -188,7 +189,10 @@ const Event = (props) => {
                   </button>
                 </Modal>
                 <button
-                  onClick={open1}
+                  onClick={() => {
+                    if(data.volunteered) toast.error("You are a volunteer, cannot register!")
+                    else open1();
+                  }}
                   className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
                 >
                   Register
@@ -223,7 +227,10 @@ const Event = (props) => {
                   </form>
                 </Modal>
                 <button
-                  onClick={open2}
+                  onClick={() => {
+                    if(data.registered) toast.error("You are registered, cannot volunteer!")
+                    else open2();
+                  }}
                   className=" border border-blue-500 px-4 py-2 rounded-md text-blue-500 font-semibold text-sm"
                 >
                   Volunteer
