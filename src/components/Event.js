@@ -43,7 +43,7 @@ const Event = (props) => {
   };
 
   return (
-    <div>
+    <div className="ml-4">
       <button
         className="pr-4 pl-3 py-2 rounded-md border-2 font-semibold text-sm mt-2 flex gap-1 items-center"
         onClick={() => {

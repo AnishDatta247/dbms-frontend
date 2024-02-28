@@ -17,7 +17,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Dashboard = () => {
-  const type = "guest";
+  const type = "admin";
 
   const [opened, { toggle }] = useDisclosure();
   const [tab, setTab] = useState(() => {
@@ -44,6 +44,10 @@ const Dashboard = () => {
   //     .then((response) => response.json())
   //     .then((data) => console.log(data));
   // }, []);
+
+  useEffect(() => {
+    console.log(tab);
+  }, [tab]);
 
   if (!localStorage.getItem("access_token")) {
     // console.log("HII");
@@ -79,30 +83,34 @@ const Dashboard = () => {
 
       <AppShell.Navbar p="md">
         <ul className="mt-1">
-          <li
-            className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-              tab === 0 ? "bg-blue-200 text-blue-600" : ""
-            }`}
-            onClick={() => {
-              saveTab(0);
-              toggle();
-            }}
-          >
-            <TicketCheck className="w-6 h-6" />
-            <span className="font-semibold text-md">Events</span>
-          </li>
-          <li
-            className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-              tab === 1 ? "bg-blue-200 text-blue-600" : ""
-            }`}
-            onClick={() => {
-              saveTab(1);
-              toggle();
-            }}
-          >
-            <CalendarFold className="w-6 h-6" />
-            <span className="font-semibold text-md">Schedule</span>
-          </li>
+          {type !== "admin" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 0 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(0);
+                toggle();
+              }}
+            >
+              <TicketCheck className="w-6 h-6" />
+              <span className="font-semibold text-md">Events</span>
+            </li>
+          )}
+          {type !== "admin" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 1 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(1);
+                toggle();
+              }}
+            >
+              <CalendarFold className="w-6 h-6" />
+              <span className="font-semibold text-md">Schedule</span>
+            </li>
+          )}
           {type === "guest" && (
             <li
               className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
@@ -119,18 +127,64 @@ const Dashboard = () => {
               </span>
             </li>
           )}
-          <li
-            className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-              tab === 3 ? "bg-blue-200 text-blue-600" : ""
-            }`}
-            onClick={() => {
-              saveTab(3);
-              toggle();
-            }}
-          >
-            <CircleUserRound className="w-6 h-6" />
-            <span className="font-semibold text-md">Profile</span>
-          </li>
+          {type !== "admin" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 3 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(3);
+                toggle();
+              }}
+            >
+              <CircleUserRound className="w-6 h-6" />
+              <span className="font-semibold text-md">Profile</span>
+            </li>
+          )}
+
+          {/* admin tabs */}
+          {type == "admin" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 5 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(5);
+                toggle();
+              }}
+            >
+              <TicketCheck className="w-6 h-6" />
+              <span className="font-semibold text-md">Events</span>
+            </li>
+          )}
+          {type == "admin" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 6 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(6);
+                toggle();
+              }}
+            >
+              <BedDouble className="w-6 h-6" />
+              <span className="font-semibold text-md">Accomodations</span>
+            </li>
+          )}
+          {type == "admin" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 7 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(7);
+                toggle();
+              }}
+            >
+              <CircleUserRound className="w-6 h-6" />
+              <span className="font-semibold text-md">Students</span>
+            </li>
+          )}
         </ul>
       </AppShell.Navbar>
 
