@@ -1,4 +1,6 @@
-import { Modal, Table, Tooltip } from "@mantine/core";
+import { Input, Modal, Select, Table, TextInput, Tooltip } from "@mantine/core";
+import { DateInput } from "@mantine/dates";
+import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
 import { Info, Trash2 } from "lucide-react";
@@ -24,6 +26,37 @@ const AdminEvents = () => {
 
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
+  const [opened3, { open: open3, close: close3 }] = useDisclosure();
+
+  const [from, setFrom] = useState(null);
+  const [to, setTo] = useState(null);
+  const [fromError, setFromError] = useState("");
+  const [toError, setToError] = useState("");
+  const form = useForm({
+    initialValues: {
+      name: "",
+      type: "",
+      start_date_time: "",
+      end_date_time: "",
+      location: "",
+      first_prize: "",
+      second_prize: "",
+      third_prize: "",
+      info: "",
+    },
+    validate: {
+      name: (value) => (value.length > 0 ? null : "Name is required"),
+      type: (value) => (value.length > 0 ? null : "Type is required"),
+      location: (value) => (value.length > 0 ? null : "Location is required"),
+      first_prize: (value) =>
+        value.length > 0 ? null : "First Prize is required",
+      second_prize: (value) =>
+        value.length > 0 ? null : "Second Prize is required",
+      third_prize: (value) =>
+        value.length > 0 ? null : "Third Prize is required",
+      info: (value) => (value.length > 0 ? null : "Info is required"),
+    },
+  });
 
   const dateTimeFormatter = (dateTime) => {
     return format(dateTime, "do MMM yyyy, h:mm a");
@@ -34,10 +67,64 @@ const AdminEvents = () => {
     close2();
   };
 
+  const onSubmit = (values) => {
+    console.log(values);
+  };
+
   return (
     <div className="px-4 py-1 flex flex-col gap-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-start gap-4 items-center">
         <span className="font-semibold text-3xl">Events</span>
+        <button
+          onClick={open3}
+          className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
+        >
+          New
+        </button>
+        <Modal opened={opened3} onClose={close3} title="New Event">
+          <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
+            <TextInput
+              label="Name"
+              placeholder="Name"
+              {...form.getInputProps("name")}
+            />
+            <Select
+              mt="sm"
+              label="Type"
+              placeholder="Type"
+              data={[
+                { label: "Competition", value: "competition" },
+                { label: "Cultural", value: "cultural" },
+                { label: "Workshop", value: "workshop" },
+                { label: "Talk", value: "talk" },
+                { label: "Other", value: "other" },
+              ]}
+              {...form.getInputProps("type")}
+            />
+
+            <div>
+              <DateInput
+                label="From"
+                placeholder="Staying from"
+                value={from}
+                onChange={setFrom}
+                error={fromError.length !== 0}
+              />
+              <span className="text-xs text-red-500">{fromError}</span>
+            </div>
+
+            <div>
+              <DateInput
+                label="To"
+                placeholder="Staying till"
+                value={to}
+                onChange={setTo}
+                error={toError.length !== 0}
+              />
+              <span className="text-xs text-red-500">{toError}</span>
+            </div>
+          </form>
+        </Modal>
       </div>
       <Table striped highlightOnHover withTableBorder>
         <Table.Thead>
