@@ -1,116 +1,124 @@
-import { Card, Button } from "@mantine/core";
+import { Card, Button, TextInput } from "@mantine/core";
 import { format } from "date-fns";
+import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-const Events = () => {
-    const input = [
-        {
-          id: 1,
-          name: "Overnite",
-          start_date_time: "2021-10-01 18:00:00",
-          end_date_time: "2021-10-02 07:00:00",
-          type: "competition",
-          registered: 0,
-        },
-        {
-          id: 2,
-          name: "NextJS Hackathon",
-          start_date_time: "2021-10-02 09:00:00",
-          end_date_time: "2021-10-04 18:00:00",
-          type: "competition",
-          registered: 0,
-        },
-        {
-          id: 3,
-          name: "Ed Sheeran Live Concert",
-          start_date_time: "2021-10-03 09:00:00",
-          end_date_time: "2021-10-03 18:00:00",
-          type: "cultural",
-          registered: 0,
-        },
-        {
-          id: 4,
-          name: "VueJS Conference",
-          start_date_time: "2021-10-04 09:00:00",
-          end_date_time: "2021-10-04 18:00:00",
-          type: "workshop",
-          registered: 0,
-        },
-        {
-          id: 5,
-          name: "Entrepreneurship Summit",
-          start_date_time: "2021-10-05 09:00:00",
-          end_date_time: "2021-10-05 18:00:00",
-          type: "talk",
-          registered: 0,
-        },
-      ];
-    
-      const [sortBy, setSortBy] = useState("start_date_time");
-      const [data, setData] = useState([]);
-      const [filteredData, setFilteredData] = useState([]);
-      const [search, setSearch] = useState("");
-    
-      useEffect(() => {
-        setData(
-          input.sort((a, b) => {
-            if (sortBy === "start_date_time") {
-              return new Date(a.start_date_time) - new Date(b.start_date_time);
-            } else if (sortBy === "end_date_time") {
-              return new Date(a.end_date_time) - new Date(b.end_date_time);
-            } else {
-              return (
-                new Date(a.end_date_time) -
-                new Date(a.start_date_time) -
-                (new Date(b.end_date_time) - new Date(b.start_date_time))
-              );
-            }
-          })
-        );
-      }, [sortBy]);
-    
-      useEffect(() => {
-        setFilteredData(
-          data.filter((event) =>
-            event.name.toLowerCase().includes(search.toLowerCase())
-          )
-        );
-      }, [search, data]);
-    
-      const dateTimeFormatter = (dateTime) => {
-        return format(dateTime, "do MMM yyyy, h:mm a");
-      };
+const Events = (props) => {
+  const input = [
+    {
+      id: 1,
+      name: "Overnite",
+      start_date_time: "2021-10-01 18:00:00",
+      end_date_time: "2021-10-02 07:00:00",
+      type: "competition",
+      registered: 0,
+    },
+    {
+      id: 2,
+      name: "NextJS Hackathon",
+      start_date_time: "2021-10-02 09:00:00",
+      end_date_time: "2021-10-04 18:00:00",
+      type: "competition",
+      registered: 0,
+    },
+    {
+      id: 3,
+      name: "Ed Sheeran Live Concert",
+      start_date_time: "2021-10-03 09:00:00",
+      end_date_time: "2021-10-03 18:00:00",
+      type: "cultural",
+      registered: 0,
+    },
+    {
+      id: 4,
+      name: "VueJS Conference",
+      start_date_time: "2021-10-04 09:00:00",
+      end_date_time: "2021-10-04 18:00:00",
+      type: "workshop",
+      registered: 0,
+    },
+    {
+      id: 5,
+      name: "Entrepreneurship Summit",
+      start_date_time: "2021-10-05 09:00:00",
+      end_date_time: "2021-10-05 18:00:00",
+      type: "talk",
+      registered: 0,
+    },
+  ];
 
-  const handleRegister = (eventId) => {
-    // Implement your registration logic here
-    console.log(`Register button clicked for event with ID ${eventId}`);
+  const [data, setData] = useState(input);
+  const [filteredData, setFilteredData] = useState([]);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    setFilteredData(
+      data.filter(
+        (event) =>
+          event.name.toLowerCase().includes(search.toLowerCase()) ||
+          event.type.toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  }, [search, data]);
+
+  const dateTimeFormatter = (dateTime) => {
+    return format(dateTime, "do MMM yyyy, h:mm a");
   };
 
   return (
-    
-    <div className="flex flex-wrap justify-center">
-        
-      {input.map((event) => (
-        <Card
-          key={event.id}
-          shadow="xs"
-          className="m-4"
-          style={{ width: 300 }}
-          radius="md"
-          padding="md"
-        >
-          <div className="text-lg font-semibold">{event.name}</div>
-          <div>Start Date-Time: {dateTimeFormatter(event.start_date_time)}</div>
-          <div>End Date-Time: {dateTimeFormatter(event.end_date_time)}</div>
-          <div>Type: {event.type}</div>
-          <div>Registered: {event.registered === 0 ? "No" : "Yes"}</div>
-          <div className="mt-4">
-            <Button onClick={() => handleRegister(event.id)} fullWidth>
-              Register
-            </Button>
-          </div>
-        </Card>
-      ))}
+    <div>
+      <div className="flex gap-2 p-4 items-center w-full">
+        <Search className="w-4 h-4 text-neutral-400" />
+        <TextInput
+          placeholder="Search for event name"
+          className="w-full"
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ">
+        {filteredData.map((event) => (
+          <Card
+            key={event.id}
+            shadow="md"
+            className="m-4 border shadow-md gap-1"
+            radius="md"
+            padding="md"
+          >
+            <div className="text-xl mb-2 font-semibold">{event.name}</div>
+            <div className="flex justify-between items-center w-full">
+              <span className="text-sm font-semibold">Starts</span>
+              <span>{dateTimeFormatter(event.start_date_time)}</span>
+            </div>
+
+            <div className="flex justify-between items-center w-full">
+              <span className="text-sm font-semibold">Ends</span>
+              <span>{dateTimeFormatter(event.end_date_time)}</span>
+            </div>
+
+            <div className="flex justify-between items-center w-full">
+              <span className="text-sm font-semibold">Type</span>
+              <span>{event.type}</span>
+            </div>
+            <div className="flex justify-between items-center w-full">
+              <span className="text-sm font-semibold">Registered</span>
+              <span>{event.registered === 0 ? "No" : "Yes"}</span>
+            </div>
+            <Link
+              className="w-full text-center bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-2"
+              fullWidth
+              onClick={() => {
+                props.setTab((prev) => 4);
+                localStorage.setItem("tab", 4);
+                props.setEid(event.id);
+              }}
+            >
+              Check Details
+            </Link>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };

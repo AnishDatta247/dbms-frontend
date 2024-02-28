@@ -7,25 +7,48 @@ import {
   CircleUserRound,
   TicketCheck,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Schedule from "../components/Schedule";
 import Accomodation from "../components/Accomodation";
-import Events from "../components/Events"
+import Events from "../components/Events";
 import Profile from "../components/Profile";
+import Event from "../components/Event";
+import { Navigate, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Dashboard = () => {
-  const type = "native";
+  const type = "guest";
 
   const [opened, { toggle }] = useDisclosure();
   const [tab, setTab] = useState(() => {
     var prevTab = localStorage.getItem("tab") || 0;
     return parseInt(prevTab);
   });
+  const [eid, setEid] = useState();
 
   const saveTab = (tab) => {
     localStorage.setItem("tab", tab);
     setTab(tab);
   };
+
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   fetch("http://10.109.10.13:8080/profile", {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: "Bearer " + localStorage.getItem("access_token"),
+  //     },
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => console.log(data));
+  // }, []);
+
+  if (!localStorage.getItem("access_token")) {
+    // console.log("HII");
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <AppShell
@@ -37,9 +60,21 @@ const Dashboard = () => {
       }}
       padding="md"
     >
-      <AppShell.Header className="flex gap-4 items-center pl-4">
-        <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-        <Logo />
+      <AppShell.Header className="flex gap-4 items-center justify-between pl-4">
+        <div className="flex gap-4 items-center">
+          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          <Logo />
+        </div>
+        <button
+          onClick={() => {
+            localStorage.removeItem("access_token");
+            navigate("/login");
+            toast.success("Logged out");
+          }}
+          className="border-2 px-4 py-2 rounded-md font-semibold text-sm mr-4"
+        >
+          Logout
+        </button>
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
@@ -101,13 +136,15 @@ const Dashboard = () => {
 
       <AppShell.Main>
         {tab === 0 ? (
-          <Events />
+          <Events setTab={setTab} setEid={setEid} />
         ) : tab === 1 ? (
           <Schedule />
         ) : tab === 2 ? (
           <Accomodation />
-        ) : (
+        ) : tab === 3 ? (
           <Profile type={type} />
+        ) : (
+          <Event eid={eid} setTab={setTab} />
         )}
       </AppShell.Main>
     </AppShell>

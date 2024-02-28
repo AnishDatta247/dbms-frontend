@@ -1,6 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 const Signup = () => {
+  if (localStorage.getItem("token")) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-800 via bg-blue-500 to-blue-300">
       <div className="bg-white rounded-xl px-8 py-6 flex flex-col gap-4 w-[350px] sm:w-[400px]">

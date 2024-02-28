@@ -7,12 +7,35 @@ import {
   NativeSelect,
   Select,
 } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const SignupStudent = (props) => {
-  const onSubmit = (values) => {
-    console.log(values);
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (values) => {
+    setLoading(true);
+    await fetch("http://10.109.10.13:8080/signup_student", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...values,
+        type: props.type === "native" ? "internal" : "external",
+      }),
+    }).then(async (res) => {
+      let jsonData = await res.json();
+      console.log(jsonData);
+      if (!res.ok) {
+        toast.error(jsonData.message);
+      } else {
+        toast.success(jsonData.message);
+        return jsonData;
+      }
+      setLoading(false);
+    });
   };
 
   const [active, setActive] = useState(0);
@@ -76,6 +99,10 @@ const SignupStudent = (props) => {
   const prevStep = () => {
     setActive((current) => (current > 0 ? current - 1 : current));
   };
+
+  if (localStorage.getItem("token")) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-800 via bg-blue-500 to-blue-300">
@@ -158,7 +185,13 @@ const SignupStudent = (props) => {
               mt="sm"
               label="Year of study"
               {...form.getInputProps("year")}
-              data={["1st", "2nd", "3rd", "4th", "5th"]}
+              data={[
+                { value: "1", label: "1st" },
+                { value: "2", label: "2nd" },
+                { value: "3", label: "3rd" },
+                { value: "4", label: "4th" },
+                { value: "5", label: "5th" },
+              ]}
             />
           </Stepper.Step>
         </Stepper>
@@ -189,6 +222,7 @@ const SignupStudent = (props) => {
           ) : (
             <button
               // type="submit"
+              disabled={loading}
               onClick={nextStep}
               className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-2"
             >
@@ -197,7 +231,7 @@ const SignupStudent = (props) => {
           )}
         </div>
         <Link
-          to="/signup"
+          to="/login"
           className="text-sm hover:underline text-center w-fit m-auto"
         >
           Already have an account?

@@ -1,11 +1,35 @@
 import { useForm } from "@mantine/form";
 import { TextInput, Button } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const Login = () => {
-  const onSubmit = (values) => {
-    console.log(values);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const onSubmit = async (values) => {
+    setLoading(true);
+    await fetch("http://10.109.10.13:8080/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    }).then(async (res) => {
+      let jsonData = await res.json();
+      console.log(jsonData);
+      if (!res.ok) {
+        toast.error(jsonData.message);
+      } else {
+        localStorage.setItem("access_token", jsonData.access_token);
+        navigate("/dashboard");
+        toast.success("Logged in successfully!");
+      }
+      setLoading(false);
+    });
   };
 
   const form = useForm({
@@ -18,6 +42,11 @@ const Login = () => {
       password: (value) => (value.length > 0 ? null : "Password is required"),
     },
   });
+
+  if (localStorage.getItem("access_token")) {
+    // console.log("HII");
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-800 via bg-blue-500 to-blue-300">
@@ -37,11 +66,13 @@ const Login = () => {
           <TextInput
             mt="sm"
             label="Password"
+            type="password"
             placeholder="Password"
             {...form.getInputProps("password")}
           />
           <button
             type="submit"
+            disabled={loading}
             className="bg-blue-500 px-4 py-2 rounded-md w-full text-white font-semibold text-sm mt-6"
           >
             Submit

@@ -1,10 +1,31 @@
 import { useForm } from "@mantine/form";
 import { TextInput, Button } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const SignupOrganizer = () => {
-  const onSubmit = (values) => {
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (values) => {
     console.log(values);
+    setLoading(true);
+    await fetch("http://10.145.18.167:8080/signup_organiser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    }).then(async (res) => {
+      let jsonData = await res.json();
+      console.log(jsonData);
+      if (!res.ok) {
+        toast.error(jsonData.message);
+      } else {
+        toast.success(jsonData.message);
+      }
+      setLoading(false);
+    });
   };
 
   const form = useForm({
@@ -15,18 +36,21 @@ const SignupOrganizer = () => {
       password: "",
       confirm_password: "",
     },
-    validate: (values) => {
-      return {
-        email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
-        name: (value) =>
-          value.trim().length > 3 ? null : "Atleast 3 characters",
-        phone: (value) => (/^\d{10}$/.test(value) ? null : "Invalid phone"),
-        password: (value) => (value.length > 6 ? null : "Atleast 6 characters"),
-        confirm_password: (value) =>
-          values.password === value ? null : "Passwords do not match",
-      };
-    },
+    validate: (values) => ({
+      email: /^\S+@\S+$/.test(values.email) ? null : "Invalid email",
+      name: values.name.trim().length > 3 ? null : "Atleast 3 characters",
+      phone: /^\d{10}$/.test(values.phone) ? null : "Invalid phone",
+      password: values.password.length > 5 ? null : "Atleast 6 characters",
+      confirm_password:
+        values.password === values.confirm_password
+          ? null
+          : "Passwords do not match",
+    }),
   });
+
+  if (localStorage.getItem("token")) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-800 via bg-blue-500 to-blue-300">
@@ -69,7 +93,7 @@ const SignupOrganizer = () => {
             type="password"
             label="Confirm Password"
             placeholder="Confirm Password"
-            {...form.getInputProps("confirm-password")}
+            {...form.getInputProps("confirm_password")}
           />
           <div className="flex justify-end gap-4">
             <Link
@@ -87,10 +111,10 @@ const SignupOrganizer = () => {
           </div>
         </form>
         <Link
-          to="/signup"
+          to="/login"
           className="text-sm hover:underline text-center w-fit m-auto"
         >
-          Do not have an account?
+          Already have an account?
         </Link>
       </div>
     </div>

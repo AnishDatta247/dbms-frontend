@@ -1,5 +1,6 @@
 import { Input, Select, Table, TextInput } from "@mantine/core";
 import { format } from "date-fns";
+import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const Schedule = () => {
@@ -97,13 +98,16 @@ const Schedule = () => {
           onChange={(value) => setSortBy(value)}
         />
       </div>
-      <TextInput
-        mt="lg"
-        placeholder="Search for event name"
-        value={search}
-        onChange={(e) => setSearch(e.currentTarget.value)}
-      />
-      <Table striped highlightOnHover withTableBorder className="mt-6">
+      <div className="flex gap-2 py-6 items-center w-full">
+        <Search className="w-4 h-4 text-neutral-400" />
+        <TextInput
+          placeholder="Search for event name"
+          className="w-full"
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+        />
+      </div>
+      <Table striped highlightOnHover withTableBorder>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Event Name</Table.Th>

@@ -2,11 +2,13 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
 import { MantineProvider } from "@mantine/core";
 import Signup from "./pages/Signup";
 import SignupStudent from "./pages/SignupStudent";
 import SignupOrganizer from "./pages/SignupOrganizer";
 import Dashboard from "./pages/Dashboard";
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
@@ -28,6 +30,7 @@ export default function App() {
           <Route path="/" element={<div>Home</div>} />
         </Routes>
       </Router>
+      <Toaster />
     </MantineProvider>
   );
 }
