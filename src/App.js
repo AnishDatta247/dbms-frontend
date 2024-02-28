@@ -30,7 +30,7 @@ export default function App() {
           <Route path="/" element={<div>Home</div>} />
         </Routes>
       </Router>
-      <Toaster />
+      <Toaster richColors />
     </MantineProvider>
   );
 }
