@@ -48,7 +48,7 @@ const SignupOrganizer = () => {
     }),
   });
 
-  if (localStorage.getItem("token")) {
+  if (localStorage.getItem("access_token")) {
     return <Navigate to="/dashboard" replace />;
   }
 

@@ -12,10 +12,12 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     setLoading(true);
-    await fetch("http://10.109.10.13:8080/login", {
+    console.log(process.env.REACT_APP_FETCH_URL);
+    await fetch(`${process.env.REACT_APP_FETCH_URL}/login`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type":
+          "application/json",
       },
       body: JSON.stringify(values),
     }).then(async (res) => {

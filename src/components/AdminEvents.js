@@ -1,9 +1,18 @@
-import { Input, Modal, Select, Table, TextInput, Tooltip } from "@mantine/core";
+import {
+  Input,
+  Modal,
+  NumberInput,
+  Select,
+  Table,
+  TextInput,
+  Textarea,
+  Tooltip,
+} from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
-import { Info, Trash2 } from "lucide-react";
+import { Info, Pen, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 const AdminEvents = () => {
@@ -36,24 +45,19 @@ const AdminEvents = () => {
     initialValues: {
       name: "",
       type: "",
-      start_date_time: "",
-      end_date_time: "",
       location: "",
-      first_prize: "",
-      second_prize: "",
-      third_prize: "",
+      first_prize: 0,
+      second_prize: 0,
+      third_prize: 0,
       info: "",
     },
     validate: {
       name: (value) => (value.length > 0 ? null : "Name is required"),
       type: (value) => (value.length > 0 ? null : "Type is required"),
       location: (value) => (value.length > 0 ? null : "Location is required"),
-      first_prize: (value) =>
-        value.length > 0 ? null : "First Prize is required",
-      second_prize: (value) =>
-        value.length > 0 ? null : "Second Prize is required",
-      third_prize: (value) =>
-        value.length > 0 ? null : "Third Prize is required",
+      first_prize: (value) => (value >= 0 ? null : "First Prize is required"),
+      second_prize: (value) => (value >= 0 ? null : "Second Prize is required"),
+      third_prize: (value) => (value >= 0 ? null : "Third Prize is required"),
       info: (value) => (value.length > 0 ? null : "Info is required"),
     },
   });
@@ -64,11 +68,55 @@ const AdminEvents = () => {
 
   const onDelete = (id) => {
     console.log("DELETING: ", id);
+    setData((prev) => prev.filter((event) => event.id !== id));
     close2();
   };
 
+  const dateString = (dateTime) => {
+    console.log(format(dateTime, "yyyy-MM-dd"));
+    return format(dateTime, "yyyy-MM-dd");
+  };
+
   const onSubmit = (values) => {
-    console.log(values);
+    form.validate();
+    if (!from) {
+      setFromError("From date required");
+    } else setFromError("");
+    if (!to) {
+      setToError("To date required");
+    } else setToError("");
+    if (Object.keys(form.errors).length > 0) {
+      return;
+    }
+    if (from && to) {
+      setFromError("");
+      setToError("");
+      console.log("SUCCESS", {
+        ...values,
+        from: dateString(from),
+        to: dateString(to),
+      });
+      //   add record
+      setData((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          name: values.name,
+          type: values.type,
+          start_date_time: from,
+          end_date_time: to,
+          location: values.location,
+          first_prize: values.first_prize,
+          second_prize: values.second_prize,
+          third_prize: values.third_prize,
+          info: values.info,
+        },
+      ]);
+      close3();
+      form.reset();
+      setFrom(null);
+      setTo(null);
+    }
   };
 
   return (
@@ -81,7 +129,7 @@ const AdminEvents = () => {
         >
           New
         </button>
-        <Modal opened={opened3} onClose={close3} title="New Event">
+        <Modal centered opened={opened3} onClose={close3} title="New Event">
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
             <TextInput
               label="Name"
@@ -102,27 +150,68 @@ const AdminEvents = () => {
               {...form.getInputProps("type")}
             />
 
-            <div>
-              <DateInput
-                label="From"
-                placeholder="Staying from"
-                value={from}
-                onChange={setFrom}
-                error={fromError.length !== 0}
-              />
-              <span className="text-xs text-red-500">{fromError}</span>
+            <div className="flex gap-4 w-full">
+              <div className="w-full">
+                <DateInput
+                  mt="md"
+                  label="From"
+                  placeholder="Staying from"
+                  value={from}
+                  onChange={setFrom}
+                  error={fromError.length !== 0}
+                />
+                <span className="text-xs text-red-500">{fromError}</span>
+              </div>
+
+              <div className="w-full">
+                <DateInput
+                  mt="md"
+                  label="To"
+                  placeholder="Staying till"
+                  value={to}
+                  onChange={setTo}
+                  error={toError.length !== 0}
+                />
+                <span className="text-xs text-red-500">{toError}</span>
+              </div>
             </div>
 
-            <div>
-              <DateInput
-                label="To"
-                placeholder="Staying till"
-                value={to}
-                onChange={setTo}
-                error={toError.length !== 0}
-              />
-              <span className="text-xs text-red-500">{toError}</span>
-            </div>
+            <TextInput
+              mt="sm"
+              label="Location"
+              placeholder="Location"
+              {...form.getInputProps("location")}
+            />
+            <NumberInput
+              mt="sm"
+              label="First Prize"
+              placeholder="First Prize"
+              {...form.getInputProps("first_prize")}
+            />
+            <NumberInput
+              mt="sm"
+              label="Second Prize"
+              placeholder="Second Prize"
+              {...form.getInputProps("second_prize")}
+            />
+            <NumberInput
+              mt="sm"
+              label="Third Prize"
+              placeholder="Third Prize"
+              {...form.getInputProps("third_prize")}
+            />
+            <Textarea
+              mt="sm"
+              label="Info"
+              placeholder="Info"
+              {...form.getInputProps("info")}
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
+            >
+              Submit
+            </button>
           </form>
         </Modal>
       </div>
@@ -138,6 +227,7 @@ const AdminEvents = () => {
             <Table.Th>Second Prize</Table.Th>
             <Table.Th>Third Prize</Table.Th>
             <Table.Th>Info</Table.Th>
+            <Table.Th>Update</Table.Th>
             <Table.Th>Delete</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -162,7 +252,10 @@ const AdminEvents = () => {
                   >
                     {event.info}
                   </Modal>
-                  <Info onClick={open1} className="w-4 h-4 text-neutral-500" />
+                  <Info onClick={open1} className="w-4 h-4" />
+                </Table.Td>
+                <Table.Td>
+                  <Pen className="cursor-pointer w-5 h-5" />
                 </Table.Td>
                 <Table.Td>
                   <Modal
@@ -179,7 +272,10 @@ const AdminEvents = () => {
                       Delete
                     </button>
                   </Modal>
-                  <Trash2 onClick={open2} className="w-5 h-5 text-red-600" />
+                  <Trash2
+                    onClick={open2}
+                    className="cursor-pointer w-5 h-5 text-red-600"
+                  />
                 </Table.Td>
               </Table.Tr>
             ))}
