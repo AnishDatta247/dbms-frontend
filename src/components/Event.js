@@ -17,7 +17,10 @@ import { toast } from "sonner";
 
 const Event = (props) => {
   const [data, setData] = useState();
-  const [radio, setRadio] = useState(0);
+  const [radio, setRadio] = useState(() => {
+    if (localStorage.getItem("radio") === null) return 0;
+    else return parseInt(localStorage.getItem("radio"));
+  });
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
@@ -168,6 +171,7 @@ const Event = (props) => {
     return "-";
   };
 
+  //fetch event details
   useEffect(() => {
     if (!props.eid) return;
 
@@ -181,12 +185,33 @@ const Event = (props) => {
       .then((response) => response.json())
       .then((data) => {
         setData(data);
-        console.log("DATA: ", data);
+        console.log("DATA: ", data, localStorage.getItem("radio"), radio);
       })
       .catch((e) => {
         toast.error(e.message);
       });
   }, [props.eid]);
+
+  // fetch student profile from organizer
+  const onClick4 = (sid) => {
+    fetch(`${process.env.REACT_APP_FETCH_URL}/organiser/student/${sid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        props.setDataViewProfile(data);
+        localStorage.setItem("tab", 9);
+        props.setTab(9);
+        console.log(data, localStorage.getItem("tab"));
+      })
+      .catch((e) => {
+        toast.error(e.message);
+      });
+  };
 
   return (
     <div className="ml-4">
@@ -390,21 +415,30 @@ const Event = (props) => {
                 <Radio
                   label="Logistics"
                   checked={radio === 0}
-                  onChange={() => setRadio(0)}
+                  onChange={() => {
+                    setRadio(0);
+                    localStorage.setItem("radio", 0);
+                  }}
                 />
                 <Radio
                   label="Participants"
                   checked={radio === 1}
-                  onChange={() => setRadio(1)}
+                  onChange={() => {
+                    setRadio(1);
+                    localStorage.setItem("radio", 1);
+                  }}
                 />
                 <Radio
                   label="Volunteers"
                   checked={radio === 2}
-                  onChange={() => setRadio(2)}
+                  onChange={() => {
+                    setRadio(2);
+                    localStorage.setItem("radio", 2);
+                  }}
                 />
               </div>
 
-              <Table>
+              <Table striped highlightOnHover withTableBorder>
                 <Table.Thead>
                   <Table.Tr>
                     {radio === 0 && (
@@ -416,12 +450,14 @@ const Event = (props) => {
                     )}
                     {radio === 1 && (
                       <>
+                        <Table.Th>Profile</Table.Th>
                         <Table.Th>Name</Table.Th>
                         <Table.Th>Email</Table.Th>
                       </>
                     )}
                     {radio === 2 && (
                       <>
+                        <Table.Th>Profile</Table.Th>
                         <Table.Th>Name</Table.Th>
                         <Table.Th>Email</Table.Th>
                         <Table.Th>Role</Table.Th>
@@ -445,6 +481,11 @@ const Event = (props) => {
                   {radio === 1 &&
                     data.participants.map((participant) => (
                       <Table.Tr>
+                        <Table.Th onClick={() => onClick4(participant.sid)}>
+                          <span className="font-normal hover:underline cursor-pointer">
+                            Link
+                          </span>
+                        </Table.Th>
                         <Table.Td>{participant.name}</Table.Td>
                         <Table.Td>{participant.email}</Table.Td>
                       </Table.Tr>
@@ -452,6 +493,11 @@ const Event = (props) => {
                   {radio === 2 &&
                     data.volunteers.map((volunteer) => (
                       <Table.Tr>
+                        <Table.Th onClick={() => onClick4(volunteer.vid)}>
+                          <span className="font-normal hover:underline cursor-pointer">
+                            Link
+                          </span>
+                        </Table.Th>
                         <Table.Td>{volunteer.name}</Table.Td>
                         <Table.Td>{volunteer.email}</Table.Td>
                         <Table.Td>{volunteer.role}</Table.Td>

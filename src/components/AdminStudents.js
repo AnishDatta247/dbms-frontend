@@ -7,13 +7,12 @@ import { Info, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const AdminStudents = (props) => {
-  
-const [data,setData]=useState();
-const [search, setSearch] = useState("");
+  const [data, setData] = useState();
+  const [search, setSearch] = useState("");
 
-useEffect(() => {
-    console.log(props.studentdata)
-    if(!props.studentdata) return;
+  useEffect(() => {
+    console.log(props.studentdata);
+    if (!props.studentdata) return;
     setData(props.studentdata);
   }, [search, props.studentdata]);
 
@@ -39,15 +38,16 @@ useEffect(() => {
       type: "",
     },
     validate: {
-        email: (value) => (value.length > 0 ? null : "Type is required"),
-        name: (value) => (value.length > 0 ? null : "Name is required"),
-        roll_number: (value) => (value.length > 0 ? null : "Roll Number is required"),
-        phone: (value) => (value.length > 0 ? null : "Phone is required"),
-        college: (value) => (value.length > 0 ? null : "college is required"),
-        department: (value) => (value.length > 0 ? null : "department is required"),
-        year: (value) => (value.length > 0 ? null : "year is required"),
-        type: (value) => (value.length > 0 ? null : "type is required"),
-
+      email: (value) => (value.length > 0 ? null : "Type is required"),
+      name: (value) => (value.length > 0 ? null : "Name is required"),
+      roll_number: (value) =>
+        value.length > 0 ? null : "Roll Number is required",
+      phone: (value) => (value.length > 0 ? null : "Phone is required"),
+      college: (value) => (value.length > 0 ? null : "college is required"),
+      department: (value) =>
+        value.length > 0 ? null : "department is required",
+      year: (value) => (value.length > 0 ? null : "year is required"),
+      type: (value) => (value.length > 0 ? null : "type is required"),
     },
   });
 
@@ -67,16 +67,10 @@ useEffect(() => {
   return (
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
-        <span className="font-semibold text-3xl">Students</span>
-        <button
-          onClick={open3}
-          className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
-        >
-          New
-        </button>
-        <Modal opened={opened3} onClose={close3} title="New Student">
+        <span className="font-semibold text-3xl">Students</span>{" "}
+        <Modal centered opened={opened3} onClose={close3} title="New Student">
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
-          <TextInput
+            <TextInput
               label="Email"
               placeholder="Email"
               {...form.getInputProps("email")}
@@ -88,18 +82,16 @@ useEffect(() => {
             />
 
             <TextInput
-                label="Roll Number"
-                placeholder="Roll Number"
-                {...form.getInputProps("roll_number")}
-                />
+              label="Roll Number"
+              placeholder="Roll Number"
+              {...form.getInputProps("roll_number")}
+            />
 
-            
-             <TextInput
+            <TextInput
               label="College"
               placeholder="College"
               {...form.getInputProps("college")}
             />
-
           </form>
         </Modal>
       </div>
@@ -129,8 +121,7 @@ useEffect(() => {
                 <Table.Td>{student.department}</Table.Td>
                 <Table.Td>{student.year}</Table.Td>
                 <Table.Td>{student.type}</Table.Td>
-                
-                
+
                 <Table.Td>
                   <Modal
                     centered

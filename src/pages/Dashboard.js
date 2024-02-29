@@ -6,6 +6,8 @@ import {
   CalendarFold,
   CircleUserRound,
   TicketCheck,
+  User,
+  User2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Schedule from "../components/Schedule";
@@ -23,11 +25,14 @@ import AdminOrganisers from "../components/AdminOrganisers";
 const Dashboard = () => {
   const [type, setType] = useState("");
   const [data, setData] = useState();
+  const [dataViewProfile, setDataViewProfile] = useState();
   const [events, setEvents] = useState();
+  const [studentdata, setstudentdata] = useState();
   const [opened, { toggle }] = useDisclosure();
   const [tab, setTab] = useState(() => {
-    var prevTab = localStorage.getItem("tab") || 0;
-    return parseInt(prevTab);
+    var prevTab = localStorage.getItem("tab");
+    if (!prevTab) return 0;
+    else return parseInt(prevTab);
   });
   const [eid, setEid] = useState(() => {
     var eventId = localStorage.getItem("eid");
@@ -50,47 +55,49 @@ const Dashboard = () => {
           setType("student");
         } else if (data.hasOwnProperty("oid")) {
           setType("organiser");
-        } else setType("admin");
+        } else {
+          setType("admin");
+          setTab(5);
+        }
       })
       .catch((e) => {
         toast.error(e.message);
       });
   }, []);
 
- const [studentdata,setstudentdata]=useState();
-
- useEffect(() => {
-    if(type!="admin") return;
-      fetch(`${process.env.REACT_APP_FETCH_URL}/admin/all_students`,{
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("access_token"),
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {                      
-              setstudentdata(data);
-          });
+  useEffect(() => {
+    if (type != "admin") return;
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/all_students`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setstudentdata(data);
+        setTab(5);
+        localStorage.setItem("tab", 5);
+      });
   }, [type]);
 
-  const [organiserdata,setorganiserdata]=useState();
+  const [organiserdata, setorganiserdata] = useState();
 
- useEffect(() => {
-    if(type!="admin") return;
-      fetch(`${process.env.REACT_APP_FETCH_URL}/admin/all_organisers`,{
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("access_token"),
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {                      
-              setorganiserdata(data);
-          });
+  useEffect(() => {
+    if (type != "admin") return;
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/all_organisers`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setorganiserdata(data);
+      });
   }, [type]);
-
 
   useEffect(() => {
     if (!type) return;
@@ -145,6 +152,8 @@ const Dashboard = () => {
         <button
           onClick={() => {
             localStorage.removeItem("access_token");
+            localStorage.removeItem("tab");
+            localStorage.removeItem("eid");
             navigate("/login");
             toast.success("Logged out");
           }}
@@ -268,7 +277,7 @@ const Dashboard = () => {
                 toggle();
               }}
             >
-              <CircleUserRound className="w-6 h-6" />
+              <User className="w-6 h-6" />
               <span className="font-semibold text-md">Organisers</span>
             </li>
           )}
@@ -285,15 +294,27 @@ const Dashboard = () => {
         ) : tab === 3 ? (
           <Profile type={type} data={data} />
         ) : tab === 4 ? (
-          <Event eid={eid} setTab={setTab} setEventsData={setEvents} />
+          <Event
+            eid={eid}
+            setTab={setTab}
+            setEventsData={setEvents}
+            setDataViewProfile={setDataViewProfile}
+          />
         ) : tab === 5 ? (
           <AdminEvents />
         ) : tab === 6 ? (
           <AdminAccodomations />
         ) : tab === 7 ? (
           <AdminStudents setTab={setTab} studentdata={studentdata} />
-          ) : tab === 8 ? (
-            <AdminOrganisers setTab={setTab} organiserdata={organiserdata} />
+        ) : tab === 8 ? (
+          <AdminOrganisers setTab={setTab} organiserdata={organiserdata} />
+        ) : tab === 9 ? (
+          <Profile
+            setTab={setTab}
+            backButton={1}
+            type="student"
+            data={dataViewProfile}
+          />
         ) : null}
       </AppShell.Main>
     </AppShell>

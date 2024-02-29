@@ -3,17 +3,16 @@ import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
-import { Info, Trash2 } from "lucide-react";
+import { Info, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const AdminOrganisers = (props) => {
-  
-const [data,setData]=useState();
-const [search, setSearch] = useState("");
+  const [data, setData] = useState();
+  const [search, setSearch] = useState("");
 
-useEffect(() => {
-    console.log(props.organiserdata)
-    if(!props.organiserdata) return;
+  useEffect(() => {
+    console.log(props.organiserdata);
+    if (!props.organiserdata) return;
     setData(props.organiserdata);
   }, [search, props.organiserdata]);
 
@@ -35,9 +34,9 @@ useEffect(() => {
       events_sponsered: "",
     },
     validate: {
-        email: (value) => (value.length > 0 ? null : "Type is required"),
-        name: (value) => (value.length > 0 ? null : "Name is required"),
-        phone: (value) => (value.length > 0 ? null : "Phone is required"),
+      email: (value) => (value.length > 0 ? null : "Type is required"),
+      name: (value) => (value.length > 0 ? null : "Name is required"),
+      phone: (value) => (value.length > 0 ? null : "Phone is required"),
     },
   });
 
@@ -57,16 +56,10 @@ useEffect(() => {
   return (
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
-        <span className="font-semibold text-3xl">organisers</span>
-        <button
-          onClick={open3}
-          className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
-        >
-          New
-        </button>
-        <Modal opened={opened3} onClose={close3} title="New organiser">
+        <span className="font-semibold text-3xl">organisers</span>{" "}
+        <Modal centered opened={opened3} onClose={close3} title="New organiser">
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
-          <TextInput
+            <TextInput
               label="Email"
               placeholder="Email"
               {...form.getInputProps("email")}
@@ -78,11 +71,10 @@ useEffect(() => {
             />
 
             <TextInput
-                label="Phone"
-                placeholder="Phone"
-                {...form.getInputProps("phone")}
-                />
-
+              label="Phone"
+              placeholder="Phone"
+              {...form.getInputProps("phone")}
+            />
           </form>
         </Modal>
       </div>
@@ -102,8 +94,7 @@ useEffect(() => {
                 <Table.Td>{organiser.name}</Table.Td>
                 <Table.Td>{organiser.email}</Table.Td>
                 <Table.Td>{organiser.phone}</Table.Td>
-                
-                
+
                 <Table.Td>
                   <Modal
                     centered
@@ -125,6 +116,13 @@ useEffect(() => {
             ))}
         </Table.Tbody>
       </Table>
+      <button
+        onClick={open3}
+        className="flex gap-1 items-center bg-blue-500 w-fit m-auto px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
+      >
+        <Plus className="w-5 h-5" />
+        <span>New Event</span>
+      </button>
     </div>
   );
 };

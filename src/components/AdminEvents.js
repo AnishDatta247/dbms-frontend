@@ -12,7 +12,7 @@ import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
-import { Info, Pen, Trash2 } from "lucide-react";
+import { Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 const AdminEvents = () => {
@@ -116,12 +116,7 @@ const AdminEvents = () => {
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
         <span className="font-semibold text-3xl">Events</span>
-        <button
-          onClick={open3}
-          className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
-        >
-          New
-        </button>
+
         <Modal centered opened={opened3} onClose={close3} title="New Event">
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
             <TextInput
@@ -274,6 +269,13 @@ const AdminEvents = () => {
             ))}
         </Table.Tbody>
       </Table>
+      <button
+        onClick={open3}
+        className="flex gap-1 items-center bg-blue-500 w-fit m-auto px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
+      >
+        <Plus className="w-5 h-5" />
+        <span>New Event</span>
+      </button>
     </div>
   );
 };
