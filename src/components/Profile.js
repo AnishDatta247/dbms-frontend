@@ -1,24 +1,6 @@
 import { useState, useEffect } from "react";
 
 const Profile = ({data, type}) => {
-  const input = {
-    sid: 123,
-    email: "johndoe56@gmail.com",
-    name: "John Doe",
-    phone: "1234567890",
-    roll_number: "21CS30006",
-    college: "IIT Kanpur",
-    department: "ECE",
-    year: "1st",
-  };
-
-  // const input = {
-  //   oid: 123,
-  //   email: "johndoe56@gmail.com",
-  //   name: "John Doe",
-  //   phone: "1234567890",
-  // };
-
   return (
     <div className="px-4 py-1">
       {type && <div className="flex flex-col">
@@ -34,14 +16,6 @@ const Profile = ({data, type}) => {
         </span>
       </div>}
       {data && <div className="flex flex-col gap-6 w-full md:max-w-[800px] mt-8">
-        <div className="flex gap-4 items-center">
-          <span className="font-semibold  w-[170px]">{`${
-            type === "organizer" ? "Organizer" : "Student"
-          } ID`}</span>
-          <div className="px-5 py-3 border border-neutral-300 rounded-lg text-sm w-full">
-            {data.sid}
-          </div>
-        </div>
         <div className="flex gap-4 items-center">
           <span className="font-semibold w-[170px]">Name</span>
           <div className="px-5 py-3 border border-neutral-300 rounded-lg text-sm w-full">
@@ -60,7 +34,7 @@ const Profile = ({data, type}) => {
             {data.phone}
           </div>
         </div>
-        {type !== "organizer" && (
+        {type !== "organiser" && (
           <div className="flex flex-col gap-6">
             <hr />
             <div className="flex gap-4 items-center">

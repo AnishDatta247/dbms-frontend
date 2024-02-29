@@ -12,6 +12,7 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     setLoading(true);
+    console.log(`${process.env.REACT_APP_FETCH_URL}/login`);
     await fetch(`${process.env.REACT_APP_FETCH_URL}/login`, {
       method: "POST",
       headers: {

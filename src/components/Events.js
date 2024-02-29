@@ -1,58 +1,17 @@
 import { Card, Button, TextInput } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import { format } from "date-fns";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Events = (props) => {
-  const input = [
-    {
-      id: 1,
-      name: "Overnite",
-      start_date_time: "2021-10-01 18:00:00",
-      end_date_time: "2021-10-02 07:00:00",
-      type: "competition",
-      registered: 0,
-    },
-    {
-      id: 2,
-      name: "NextJS Hackathon",
-      start_date_time: "2021-10-02 09:00:00",
-      end_date_time: "2021-10-04 18:00:00",
-      type: "competition",
-      registered: 0,
-    },
-    {
-      id: 3,
-      name: "Ed Sheeran Live Concert",
-      start_date_time: "2021-10-03 09:00:00",
-      end_date_time: "2021-10-03 18:00:00",
-      type: "cultural",
-      registered: 0,
-    },
-    {
-      id: 4,
-      name: "VueJS Conference",
-      start_date_time: "2021-10-04 09:00:00",
-      end_date_time: "2021-10-04 18:00:00",
-      type: "workshop",
-      registered: 0,
-    },
-    {
-      id: 5,
-      name: "Entrepreneurship Summit",
-      start_date_time: "2021-10-05 09:00:00",
-      end_date_time: "2021-10-05 18:00:00",
-      type: "talk",
-      registered: 0,
-    },
-  ];
 
   const [filteredData, setFilteredData] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if(!props.events) return;
+    if (!props.events) return;
     setFilteredData(
       props.events.filter(
         (event) =>
@@ -101,10 +60,18 @@ const Events = (props) => {
               <span className="text-sm font-semibold">Type</span>
               <span>{event.type}</span>
             </div>
-            <div className="flex justify-between items-center w-full">
-              <span className="text-sm font-semibold">Registered</span>
-              <span>{!event.registered ? "No" : "Yes"}</span>
-            </div>
+            {"registered" in event && (
+              <div className="flex justify-between items-center w-full">
+                <span className="text-sm font-semibold">Registered</span>
+                <span>{!event.registered ? "No" : "Yes"}</span>
+              </div>
+            )}
+            {"sponsored" in event && (
+              <div className="flex justify-between items-center w-full">
+                <span className="text-sm font-semibold">Sponsored</span>
+                <span className="capitalize">{event.sponsored}</span>
+              </div>
+            )}
             <Link
               className="w-full text-center bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-2"
               fullWidth
