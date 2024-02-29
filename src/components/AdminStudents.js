@@ -5,6 +5,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
 import { Info, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 
 const AdminStudents = (props) => {
   const [data, setData] = useState();
@@ -16,16 +17,10 @@ const AdminStudents = (props) => {
     setData(props.studentdata);
   }, [search, props.studentdata]);
 
-  console.log(data);
-
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
 
-  const [from, setFrom] = useState(null);
-  const [to, setTo] = useState(null);
-  const [fromError, setFromError] = useState("");
-  const [toError, setToError] = useState("");
   const form = useForm({
     initialValues: {
       email: "",
@@ -37,17 +32,24 @@ const AdminStudents = (props) => {
       year: "",
       type: "",
     },
-    validate: {
-      email: (value) => (value.length > 0 ? null : "Type is required"),
-      name: (value) => (value.length > 0 ? null : "Name is required"),
-      roll_number: (value) =>
-        value.length > 0 ? null : "Roll Number is required",
-      phone: (value) => (value.length > 0 ? null : "Phone is required"),
-      college: (value) => (value.length > 0 ? null : "college is required"),
-      department: (value) =>
-        value.length > 0 ? null : "department is required",
-      year: (value) => (value.length > 0 ? null : "year is required"),
-      type: (value) => (value.length > 0 ? null : "type is required"),
+    validate: (values) => {
+      return {
+        email: /^\S+@\S+$/.test(values.email) ? null : "Invalid email",
+        name: values.name.trim().length > 0 ? null : "Name is required",
+        roll_number:
+          values.roll_number.length > 0 ? null : "Roll number is required",
+        phone:
+          values.phone.length > 0
+            ? /^\d{10}$/g.test(values.phone)
+              ? null
+              : "Invalid Phone Number"
+            : "Phone number is required",
+        college: values.college.length > 0 ? null : "College name is required",
+        department:
+          values.department.length > 0 ? null : "Department name is required",
+        year: values.year.length > 0 ? null : "Year of study is required",
+        type: values.type.length > 0 ? null : "Type is required",
+      };
     },
   });
 
@@ -56,12 +58,14 @@ const AdminStudents = (props) => {
   };
 
   const onDelete = (sid) => {
-    console.log("DELETING: ", sid);
+    setData((prev) => prev.filter((student) => student.sid !== sid));
     close2();
   };
 
   const onSubmit = (values) => {
     console.log(values);
+    setData((prev) => [...prev, values]);
+    close3();
   };
 
   return (
@@ -69,7 +73,10 @@ const AdminStudents = (props) => {
       <div className="flex justify-start gap-4 items-center">
         <span className="font-semibold text-3xl">Students</span>{" "}
         <Modal centered opened={opened3} onClose={close3} title="New Student">
-          <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
+          <form
+            className="gap-2 flex flex-col"
+            onSubmit={form.onSubmit((values) => onSubmit(values))}
+          >
             <TextInput
               label="Email"
               placeholder="Email"
@@ -82,16 +89,79 @@ const AdminStudents = (props) => {
             />
 
             <TextInput
-              label="Roll Number"
-              placeholder="Roll Number"
-              {...form.getInputProps("roll_number")}
-            />
-
-            <TextInput
               label="College"
               placeholder="College"
               {...form.getInputProps("college")}
             />
+
+            <div className="flex gap-4">
+              <TextInput
+                className="w-full"
+                label="Roll Number"
+                placeholder="21CS30006"
+                {...form.getInputProps("roll_number")}
+              />
+              <TextInput
+                className="w-full"
+                label="Phone"
+                placeholder="10 digit phone number"
+                {...form.getInputProps("phone")}
+              />
+            </div>
+            {props.type === "guest" && (
+              <TextInput
+                mt="sm"
+                label="College"
+                placeholder="IIT KGP"
+                {...form.getInputProps("college")}
+              />
+            )}
+            <Select
+              clearable
+              placeholder="Department"
+              label="Department"
+              {...form.getInputProps("department")}
+              data={[
+                { value: "CSE", label: "Computer Science and Engineering" },
+                { value: "EE", label: "Electrical Engineering" },
+                { value: "ME", label: "Mechanical Engineering" },
+                { value: "CE", label: "Civil Engineering" },
+                {
+                  value: "ECE",
+                  label: "Electronics and Communication Engineering",
+                },
+                { value: "MNC", label: "Mathematics and Computing" },
+              ]}
+            />
+            <Select
+              clearable
+              placeholder="Year of study"
+              label="Year of study"
+              {...form.getInputProps("year")}
+              data={[
+                { value: "1", label: "1st" },
+                { value: "2", label: "2nd" },
+                { value: "3", label: "3rd" },
+                { value: "4", label: "4th" },
+                { value: "5", label: "5th" },
+              ]}
+            />
+            <Select
+              clearable
+              placeholder="Native or Guest"
+              label="Student Type"
+              {...form.getInputProps("type")}
+              data={[
+                { value: "internal", label: "Native" },
+                { value: "external", label: "Guest" },
+              ]}
+            />
+            <button
+              type="submit"
+              className="mt-2 w-fit bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
+            >
+              Submit
+            </button>
           </form>
         </Modal>
       </div>
@@ -143,6 +213,13 @@ const AdminStudents = (props) => {
             ))}
         </Table.Tbody>
       </Table>
+      <button
+        onClick={open3}
+        className="flex gap-1 items-center bg-blue-500 w-fit m-auto px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
+      >
+        <Plus className="w-5 h-5" />
+        <span>New Student</span>
+      </button>
     </div>
   );
 };
