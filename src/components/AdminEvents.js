@@ -21,6 +21,7 @@ const AdminEvents = ({ data, setData }) => {
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
   const [modalData, setModalData] = useState();
+  const [selectModal, setSelectModal] = useState(); // for selecting add or update modal
 
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
@@ -40,9 +41,20 @@ const AdminEvents = ({ data, setData }) => {
       name: (value) => (value.length > 0 ? null : "Name is required"),
       type: (value) => (value.length > 0 ? null : "Type is required"),
       location: (value) => (value.length > 0 ? null : "Location is required"),
-      first_prize: (value) => (value >= 0 ? null : "First Prize is required"),
-      second_prize: (value) => (value >= 0 ? null : "Second Prize is required"),
-      third_prize: (value) => (value >= 0 ? null : "Third Prize is required"),
+      first_prize: (value, values) =>
+        value >= 0 ? null : "First Prize is required",
+      second_prize: (value, values) =>
+        value >= 0
+          ? value < values.first_prize
+            ? null
+            : "Second prize must be less than first"
+          : "Second Prize is required",
+      third_prize: (value, values) =>
+        value >= 0
+          ? value < values.second_prize
+            ? null
+            : "Third price must be less than second"
+          : "Third Prize is required",
       info: (value) => (value.length > 0 ? null : "Info is required"),
     },
   });
@@ -71,15 +83,19 @@ const AdminEvents = ({ data, setData }) => {
   };
 
   const dateString = (dateTime) => {
-    return format(dateTime, "yyyy-MM-dd");
+    return format(dateTime, "yyyy-MM-dd HH:mm:ss");
   };
 
   const onSubmit = (values) => {
     form.validate();
     if (Object.keys(form.errors).length == 0 && from && to && from <= to) {
       //   add record
-      fetch(`${process.env.REACT_APP_FETCH_URL}/admin/add_event`, {
-        method: "POST",
+      const fetchUrl =
+        selectModal === 0
+          ? `${process.env.REACT_APP_FETCH_URL}/admin/add_event`
+          : `${process.env.REACT_APP_FETCH_URL}/admin/update_event/${modalData.eid}`;
+      fetch(fetchUrl, {
+        method: selectModal === 0 ? "POST" : "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("access_token"),
@@ -87,12 +103,15 @@ const AdminEvents = ({ data, setData }) => {
         body: JSON.stringify({
           name: values.name,
           type: values.type,
-          start_date_time: from,
-          end_date_time: to,
+          start_date_time: dateString(from),
+          end_date_time: dateString(to),
           location: values.location,
-          first_prize: values.first_prize,
-          second_prize: values.second_prize,
-          third_prize: values.third_prize,
+          first_prize:
+            values.type === "competition" ? values.first_prize : "None",
+          second_prize:
+            values.type === "competition" ? values.second_prize : "None",
+          third_prize:
+            values.type === "competition" ? values.third_prize : "None",
           info: values.info,
         }),
       })
@@ -102,24 +121,53 @@ const AdminEvents = ({ data, setData }) => {
           form.reset();
           setFrom(null);
           setTo(null);
-          setData((prev) => [
-            ...prev,
-            {
-              eid: resData.event_id,
-              name: values.name,
-              type: values.type,
-              start_date_time: from,
-              end_date_time: to,
-              location: values.location,
-              first_prize:
-                values.type === "competition" ? values.first_prize : null,
-              second_prize:
-                values.type === "competition" ? values.second_prize : null,
-              third_prize:
-                values.type === "competition" ? values.third_prize : null,
-              info: values.info,
-            },
-          ]);
+          if (selectModal === 0)
+            setData((prev) => [
+              ...prev,
+              {
+                eid: resData.event_id,
+                name: values.name,
+                type: values.type,
+                start_date_time: from,
+                end_date_time: to,
+                location: values.location,
+                first_prize:
+                  values.type === "competition" ? values.first_prize : null,
+                second_prize:
+                  values.type === "competition" ? values.second_prize : null,
+                third_prize:
+                  values.type === "competition" ? values.third_prize : null,
+                info: values.info,
+              },
+            ]);
+          else
+            setData((prev) =>
+              prev.map((event) =>
+                event.eid === modalData.eid
+                  ? {
+                      eid: modalData.eid,
+                      name: values.name,
+                      type: values.type,
+                      start_date_time: from,
+                      end_date_time: to,
+                      location: values.location,
+                      first_prize:
+                        values.type === "competition"
+                          ? values.first_prize
+                          : null,
+                      second_prize:
+                        values.type === "competition"
+                          ? values.second_prize
+                          : null,
+                      third_prize:
+                        values.type === "competition"
+                          ? values.third_prize
+                          : null,
+                      info: values.info,
+                    }
+                  : event
+              )
+            );
         })
         .catch((e) => {
           toast.error(e.message);
@@ -173,7 +221,12 @@ const AdminEvents = ({ data, setData }) => {
           </button>
         </Modal>
 
-        <Modal centered opened={opened3} onClose={close3} title="New Event">
+        <Modal
+          centered
+          opened={opened3}
+          onClose={close3}
+          title={selectModal === 0 ? "New Event" : "Update Event"}
+        >
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
             <TextInput
               label="Name"
@@ -304,7 +357,34 @@ const AdminEvents = ({ data, setData }) => {
                     />
                   </Table.Td>
                   <Table.Td>
-                    <Pen className="cursor-pointer w-5 h-5" />
+                    <Pen
+                      onClick={() => {
+                        setSelectModal(1); //modal opens for update functionality
+                        form.setValues({
+                          name: event.name,
+                          type: event.type,
+                          location: event.location,
+                          first_prize:
+                            event.type === "competition"
+                              ? event.first_prize
+                              : 0,
+                          second_prize:
+                            event.type === "competition"
+                              ? event.second_prize
+                              : 0,
+                          third_prize:
+                            event.type === "competition"
+                              ? event.third_prize
+                              : 0,
+                          info: event.info,
+                        });
+                        setFrom(new Date(event.start_date_time));
+                        setTo(new Date(event.end_date_time));
+                        setModalData(event);
+                        open3();
+                      }}
+                      className="cursor-pointer w-5 h-5"
+                    />
                   </Table.Td>
                   <Table.Td>
                     <Trash2
@@ -321,7 +401,10 @@ const AdminEvents = ({ data, setData }) => {
         </Table.Tbody>
       </Table>
       <button
-        onClick={open3}
+        onClick={() => {
+          setSelectModal(0); //modal opens for add functionality
+          open3();
+        }}
         className="flex gap-1 items-center bg-blue-500 w-fit m-auto px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
       >
         <Plus className="w-5 h-5" />
