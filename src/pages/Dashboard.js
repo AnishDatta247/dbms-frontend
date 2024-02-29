@@ -301,7 +301,7 @@ const Dashboard = () => {
             setDataViewProfile={setDataViewProfile}
           />
         ) : tab === 5 ? (
-          <AdminEvents setTab={setTab} adminEvent = {events}/>
+          <AdminEvents setTab={setTab} data={events} setData={setEvents} />
         ) : tab === 6 ? (
           <AdminAccodomations />
         ) : tab === 7 ? (

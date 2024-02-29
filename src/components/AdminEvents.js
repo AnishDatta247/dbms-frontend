@@ -16,20 +16,11 @@ import { Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-const AdminEvents = (props) => {
-  
-  const [data, setData] = useState();
-  
-  useEffect(() => {
-    console.log(props.adminEvent);
-    if (!props.adminEvent) return;
-    setData(props.adminEvent);
-  }, [props.adminEvent]);
-
-
+const AdminEvents = ({ data, setData }) => {
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
+  const [modalData, setModalData] = useState();
 
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
@@ -61,8 +52,8 @@ const AdminEvents = (props) => {
   };
 
   const onDelete = (eid) => {
-    // console.log(del_event)
-    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/delete_event/`+ eid, {
+    console.log(eid);
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/delete_event/` + eid, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +62,7 @@ const AdminEvents = (props) => {
     })
       .then((response) => response.json())
       .then(() => {
-        setData((prev) => prev.filter((event) => event.id !== eid));
+        setData((prev) => prev.filter((event) => event.eid !== eid));
         close2();
       })
       .catch((e) => {
@@ -85,36 +76,8 @@ const AdminEvents = (props) => {
 
   const onSubmit = (values) => {
     form.validate();
-    if (!from) {
-      setFromError("From date required");
-    } else setFromError("");
-    if (!to) {
-      setToError("To date required");
-    } else setToError("");
-    if (Object.keys(form.errors).length > 0) {
-      return;
-    }
-    if (from && to) {
-      setFromError("");
-      setToError("");
+    if (Object.keys(form.errors).length == 0 && from && to && from <= to) {
       //   add record
-      setData((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          name: values.name,
-          type: values.type,
-          start_date_time: from,
-          end_date_time: to,
-          location: values.location,
-          first_prize: values.first_prize,
-          second_prize: values.second_prize,
-          third_prize: values.third_prize,
-          info: values.info,
-        },
-      ]);
-
-
       fetch(`${process.env.REACT_APP_FETCH_URL}/admin/add_event`, {
         method: "POST",
         headers: {
@@ -134,21 +97,51 @@ const AdminEvents = (props) => {
         }),
       })
         .then((response) => response.json())
-        .then(() => {
+        .then((resData) => {
           close3();
           form.reset();
           setFrom(null);
           setTo(null);
+          setData((prev) => [
+            ...prev,
+            {
+              eid: resData.event_id,
+              name: values.name,
+              type: values.type,
+              start_date_time: from,
+              end_date_time: to,
+              location: values.location,
+              first_prize:
+                values.type === "competition" ? values.first_prize : null,
+              second_prize:
+                values.type === "competition" ? values.second_prize : null,
+              third_prize:
+                values.type === "competition" ? values.third_prize : null,
+              info: values.info,
+            },
+          ]);
         })
         .catch((e) => {
           toast.error(e.message);
         });
-
-      // close3();
-      // form.reset();
-      // setFrom(null);
-      // setTo(null);
-
+    }
+    if (!from) {
+      setFromError("From date required");
+      return;
+    } else setFromError("");
+    if (!to) {
+      setToError("To date required");
+      return;
+    } else if (from > to) {
+      setToError("To date should be after than from date");
+      return;
+    } else setToError("");
+    if (Object.keys(form.errors).length > 0) {
+      return;
+    }
+    if (fromError.length === 0 && toError.length === 0) {
+      setFromError("");
+      setToError("");
     }
   };
 
@@ -156,6 +149,29 @@ const AdminEvents = (props) => {
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
         <span className="font-semibold text-3xl">Events</span>
+
+        <Modal centered title="Information" opened={opened1} onClose={close1}>
+          {modalData && modalData.info}
+        </Modal>
+
+        <Modal
+          centered
+          title="Confirm Delete"
+          opened={opened2}
+          onClose={close2}
+        >
+          <p>Do you want to delete this event?</p>
+          <p>{modalData && modalData.name}</p>
+          <button
+            onClick={() => {
+              onDelete(modalData.eid);
+              console.log(modalData.eid);
+            }}
+            className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
+          >
+            Delete
+          </button>
+        </Modal>
 
         <Modal centered opened={opened3} onClose={close3} title="New Event">
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
@@ -212,18 +228,21 @@ const AdminEvents = (props) => {
             />
             <NumberInput
               mt="sm"
+              disabled={form.values.type !== "competition"}
               label="First Prize"
               placeholder="First Prize"
               {...form.getInputProps("first_prize")}
             />
             <NumberInput
               mt="sm"
+              disabled={form.values.type !== "competition"}
               label="Second Prize"
               placeholder="Second Prize"
               {...form.getInputProps("second_prize")}
             />
             <NumberInput
               mt="sm"
+              disabled={form.values.type !== "competition"}
               label="Third Prize"
               placeholder="Third Prize"
               {...form.getInputProps("third_prize")}
@@ -262,53 +281,43 @@ const AdminEvents = (props) => {
         <Table.Tbody>
           {
             // console.log(data);
-          data &&
-            data.map((event) => (
-              <Table.Tr key={event.id}>
-                <Table.Td>{event.name}</Table.Td>
-                <Table.Td className="capitalize">{event.type}</Table.Td>
-                <Table.Td>{dateTimeFormatter(event.start_date_time)}</Table.Td>
-                <Table.Td>{dateTimeFormatter(event.end_date_time)}</Table.Td>
-                <Table.Td>{event.location}</Table.Td>
-                <Table.Td>{event.first_prize}</Table.Td>
-                <Table.Td>{event.second_prize}</Table.Td>
-                <Table.Td>{event.third_prize}</Table.Td>
-                <Table.Td>
-                  <Modal
-                    centered
-                    title="Information"
-                    opened={opened1}
-                    onClose={close1}
-                  >
-                    {event.info}
-                  </Modal>
-                  <Info onClick={open1} className="w-4 h-4" />
-                </Table.Td>
-                <Table.Td>
-                  <Pen className="cursor-pointer w-5 h-5" />
-                </Table.Td>
-                <Table.Td>
-                  <Modal
-                    centered
-                    title="Confirm Delete"
-                    opened={opened2}
-                    onClose={close2}
-                  >
-                    <p>Do you want to delete this event?</p>
-                    <button
-                      onClick={() => onDelete(event.eid)}
-                      className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-                    >
-                      Delete
-                    </button>
-                  </Modal>
-                  <Trash2
-                    onClick={open2}
-                    className="cursor-pointer w-5 h-5 text-red-600"
-                  />
-                </Table.Td>
-              </Table.Tr>
-            ))}
+            data &&
+              data.map((event) => (
+                <Table.Tr key={event.eid}>
+                  <Table.Td>{event.name}</Table.Td>
+                  <Table.Td className="capitalize">{event.type}</Table.Td>
+                  <Table.Td>
+                    {dateTimeFormatter(event.start_date_time)}
+                  </Table.Td>
+                  <Table.Td>{dateTimeFormatter(event.end_date_time)}</Table.Td>
+                  <Table.Td>{event.location}</Table.Td>
+                  <Table.Td>{event.first_prize}</Table.Td>
+                  <Table.Td>{event.second_prize}</Table.Td>
+                  <Table.Td>{event.third_prize}</Table.Td>
+                  <Table.Td>
+                    <Info
+                      onClick={() => {
+                        setModalData(event);
+                        open1();
+                      }}
+                      className="w-4 h-4"
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <Pen className="cursor-pointer w-5 h-5" />
+                  </Table.Td>
+                  <Table.Td>
+                    <Trash2
+                      onClick={() => {
+                        setModalData(event);
+                        open2();
+                      }}
+                      className="cursor-pointer w-5 h-5 text-red-600"
+                    />
+                  </Table.Td>
+                </Table.Tr>
+              ))
+          }
         </Table.Tbody>
       </Table>
       <button
