@@ -13,26 +13,19 @@ import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format, set } from "date-fns";
 import { Info, Pen, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-const AdminEvents = () => {
-  const input = [
-    {
-      id: 1,
-      name: "Overnite",
-      start_date_time: "2021-10-01 18:00:00",
-      end_date_time: "2021-10-02 07:00:00",
-      type: "competition",
-      location: "Computer Informatics Center",
-      first_prize: 30000,
-      second_prize: 20000,
-      third_prize: 10000,
-      info: "Overnite is the annual cultural fest of IITB. It is a 36-hour long festival that is a perfect blend of cultural, technical, and artistic events. It is one of the most awaited events of the year.",
-    },
-  ];
+const AdminEvents = (props) => {
+  
+  const [data, setData] = useState();
+  
+  useEffect(() => {
+    console.log(props.adminEvent);
+    if (!props.adminEvent) return;
+    setData(props.adminEvent);
+  }, [props.adminEvent]);
 
-  const [data, setData] = useState(input);
 
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
@@ -67,9 +60,23 @@ const AdminEvents = () => {
     return format(dateTime, "do MMM yyyy, h:mm a");
   };
 
-  const onDelete = (id) => {
-    setData((prev) => prev.filter((event) => event.id !== id));
-    close2();
+  const onDelete = (eid) => {
+    // console.log(del_event)
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/delete_event/`+ eid, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then(() => {
+        setData((prev) => prev.filter((event) => event.id !== eid));
+        close2();
+      })
+      .catch((e) => {
+        toast.error(e.message);
+      });
   };
 
   const dateString = (dateTime) => {
@@ -253,7 +260,9 @@ const AdminEvents = () => {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {data &&
+          {
+            // console.log(data);
+          data &&
             data.map((event) => (
               <Table.Tr key={event.id}>
                 <Table.Td>{event.name}</Table.Td>
@@ -287,7 +296,7 @@ const AdminEvents = () => {
                   >
                     <p>Do you want to delete this event?</p>
                     <button
-                      onClick={() => onDelete(event.id)}
+                      onClick={() => onDelete(event.eid)}
                       className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
                     >
                       Delete
