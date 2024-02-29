@@ -5,53 +5,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Events = (props) => {
-  const input = [
-    {
-      id: 1,
-      name: "Overnite",
-      start_date_time: "2021-10-01 18:00:00",
-      end_date_time: "2021-10-02 07:00:00",
-      type: "competition",
-      registered: 0,
-    },
-    {
-      id: 2,
-      name: "NextJS Hackathon",
-      start_date_time: "2021-10-02 09:00:00",
-      end_date_time: "2021-10-04 18:00:00",
-      type: "competition",
-      registered: 0,
-    },
-    {
-      id: 3,
-      name: "Ed Sheeran Live Concert",
-      start_date_time: "2021-10-03 09:00:00",
-      end_date_time: "2021-10-03 18:00:00",
-      type: "cultural",
-      registered: 0,
-    },
-    {
-      id: 4,
-      name: "VueJS Conference",
-      start_date_time: "2021-10-04 09:00:00",
-      end_date_time: "2021-10-04 18:00:00",
-      type: "workshop",
-      registered: 0,
-    },
-    {
-      id: 5,
-      name: "Entrepreneurship Summit",
-      start_date_time: "2021-10-05 09:00:00",
-      end_date_time: "2021-10-05 18:00:00",
-      type: "talk",
-      registered: 0,
-    },
-  ];
 
   const [filteredData, setFilteredData] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    console.log(props.events)
     if(!props.events) return;
     setFilteredData(
       props.events.filter(
