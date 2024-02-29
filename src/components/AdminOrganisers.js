@@ -132,7 +132,7 @@ const AdminOrganisers = (props) => {
             <TextInput
               label="Password"
               placeholder="Password"
-              {...form.getInputProps("p assword")}
+              {...form.getInputProps("password")}
             />
             <button
               type="submit"
@@ -168,7 +168,7 @@ const AdminOrganisers = (props) => {
                       opened={opened1}
                       onClose={close1}
                     >
-                      {console.log("vdgrf",organiser,organiser.events_sponsored)}
+                      
                       {/* iterate on organisr.events_sponsered using loop and print */
                       
                         <div>
@@ -181,7 +181,7 @@ const AdminOrganisers = (props) => {
                             </Table.Tr>
                           </Table.Thead>
                           <Table.Tbody>
-                            {organiser.events_sponsored.map((event1) => (
+                            {organiser.events_sponsored && organiser.events_sponsored.map((event1) => (
                             <Table.Tr key={event1.eid}>
                               <Table.Td>{event1.name}</Table.Td>
                               <Table.Td>{event1.payment_status}</Table.Td>

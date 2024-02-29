@@ -3,9 +3,8 @@ import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
-import { Info,Plus, Trash2 } from "lucide-react";
+import { Info, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const AdminStudents = (props) => {
@@ -61,8 +60,8 @@ const AdminStudents = (props) => {
 
   const onDelete = (sid) => {
     console.log("DELETING: ", sid);
-    console.log("DELETING: ", `${process.env.REACT_APP_FETCH_URL}/admin/remove_student/`+ sid);
-    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_student/`+ sid, {
+    console.log("DELETING: ", `${process.env.REACT_APP_FETCH_URL}/admin/remove_student/` + sid);
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_student/` + sid, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
