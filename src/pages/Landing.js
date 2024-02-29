@@ -40,15 +40,15 @@ const Landing = () => {
           <TypeAnimation
             sequence={[
               "Competitions",
-              1000,
+              2000,
               "Workshops",
-              1000,
+              2000,
               "Talks",
-              1000,
+              2000,
               "Cultural and",
-              1000,
+              2000,
               "other events",
-              1000,
+              2000,
             ]}
             speed={25}
             wrapper="span"
