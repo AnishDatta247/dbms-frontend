@@ -23,6 +23,15 @@ const Dashboard = () => {
   const [type, setType] = useState("");
   const [data, setData] = useState();
   const [events, setEvents] = useState();
+  const [opened, { toggle }] = useDisclosure();
+  const [tab, setTab] = useState(() => {
+    var prevTab = localStorage.getItem("tab") || 0;
+    return parseInt(prevTab);
+  });
+  const [eid, setEid] = useState(() => {
+    var eventId = localStorage.getItem("eid");
+    return eventId;
+  });
 
   // fetch profile
   useEffect(() => {
@@ -70,15 +79,6 @@ const Dashboard = () => {
   }, [type]);
 
   console.log("user type is " + type);
-  const [opened, { toggle }] = useDisclosure();
-  const [tab, setTab] = useState(() => {
-    var prevTab = localStorage.getItem("tab") || 0;
-    return parseInt(prevTab);
-  });
-  const [eid, setEid] = useState(() => {
-    var eventId = localStorage.getItem("eid");
-    return eventId;
-  });
 
   const saveTab = (tab) => {
     localStorage.setItem("tab", tab);
@@ -87,9 +87,9 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  // if (!localStorage.getItem("access_token")) {
-  //   return <Navigate to="/login" replace />;
-  // }
+  if (!localStorage.getItem("access_token")) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <AppShell

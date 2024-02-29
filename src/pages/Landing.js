@@ -1,6 +1,7 @@
 import { Drama } from "lucide-react";
 import Logo from "../components/Logo";
 import { Link } from "react-router-dom";
+import { TypeAnimation } from "react-type-animation";
 
 const Landing = () => {
   return (
@@ -31,6 +32,34 @@ const Landing = () => {
         >
           Login
         </Link>
+      </div>
+
+      <div className="flex flex-col items-center font-semibold font-[satoshi] gap-1">
+        <span className="text-xl">Get ready for</span>
+        <div className="text-white bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 rounded-lg">
+          <TypeAnimation
+            sequence={[
+              "Competitions",
+              1000,
+              "Workshops",
+              1000,
+              "Talks",
+              1000,
+              "Cultural and",
+              1000,
+              "other events",
+              1000,
+            ]}
+            speed={25}
+            wrapper="span"
+            cursor={true}
+            repeat={Infinity}
+            preRenderFirstString
+            style={{ fontSize: "24px", display: "inline-block" }}
+          >
+            Competitions, workshops, talks, cultural and other events
+          </TypeAnimation>
+        </div>
       </div>
     </div>
   );
