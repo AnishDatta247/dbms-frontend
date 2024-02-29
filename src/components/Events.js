@@ -1,4 +1,5 @@
 import { Card, Button, TextInput } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import { format } from "date-fns";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -52,7 +53,7 @@ const Events = (props) => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if(!props.events) return;
+    if (!props.events) return;
     setFilteredData(
       props.events.filter(
         (event) =>
@@ -101,10 +102,18 @@ const Events = (props) => {
               <span className="text-sm font-semibold">Type</span>
               <span>{event.type}</span>
             </div>
-            <div className="flex justify-between items-center w-full">
-              <span className="text-sm font-semibold">Registered</span>
-              <span>{!event.registered ? "No" : "Yes"}</span>
-            </div>
+            {"registered" in event && (
+              <div className="flex justify-between items-center w-full">
+                <span className="text-sm font-semibold">Registered</span>
+                <span>{!event.registered ? "No" : "Yes"}</span>
+              </div>
+            )}
+            {"sponsored" in event && (
+              <div className="flex justify-between items-center w-full">
+                <span className="text-sm font-semibold">Sponsored</span>
+                <span className="capitalize">{event.sponsored}</span>
+              </div>
+            )}
             <Link
               className="w-full text-center bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-2"
               fullWidth

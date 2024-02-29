@@ -229,7 +229,7 @@ const Dashboard = () => {
         {tab === 0 ? (
           <Events setTab={setTab} setEid={setEid} type={type} events={events} />
         ) : tab === 1 ? (
-          <Schedule events={events} />
+          <Schedule events={events} type={type} />
         ) : tab === 2 ? (
           <Accomodation />
         ) : tab === 3 ? (
