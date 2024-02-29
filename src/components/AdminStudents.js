@@ -1,10 +1,11 @@
-import { Input, Modal, Select, Table, TextInput, Tooltip } from "@mantine/core";
+import { Input, Modal, NumberInput, Select, Table, TextInput, Tooltip } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
-import { Info, Trash2 } from "lucide-react";
+import { Info,Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const AdminStudents = (props) => {
   const [data, setData] = useState();
@@ -22,10 +23,10 @@ const AdminStudents = (props) => {
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
 
-  const [from, setFrom] = useState(null);
-  const [to, setTo] = useState(null);
-  const [fromError, setFromError] = useState("");
-  const [toError, setToError] = useState("");
+  // const [from, setFrom] = useState(null);
+  // const [to, setTo] = useState(null);
+  // const [fromError, setFromError] = useState("");
+  // const [toError, setToError] = useState("");
   const form = useForm({
     initialValues: {
       email: "",
@@ -36,6 +37,7 @@ const AdminStudents = (props) => {
       department: "",
       year: "",
       type: "",
+      password: "",
     },
     validate: {
       email: (value) => (value.length > 0 ? null : "Type is required"),
@@ -46,7 +48,7 @@ const AdminStudents = (props) => {
       college: (value) => (value.length > 0 ? null : "college is required"),
       department: (value) =>
         value.length > 0 ? null : "department is required",
-      year: (value) => (value.length > 0 ? null : "year is required"),
+      year: (value) => (value > 0 ? null : "year is required"),
       type: (value) => (value.length > 0 ? null : "type is required"),
     },
   });
@@ -57,11 +59,82 @@ const AdminStudents = (props) => {
 
   const onDelete = (sid) => {
     console.log("DELETING: ", sid);
-    close2();
+    console.log("DELETING: ", `${process.env.REACT_APP_FETCH_URL}/admin/remove_student/`+ sid);
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_student/`+ sid, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then(() => {
+        close2();
+      })
+      .catch((e) => {
+        toast.error(e.message);
+      });
+
   };
 
   const onSubmit = (values) => {
     console.log(values);
+
+    form.validate();
+    if (Object.keys(form.errors).length > 0) {
+      return;
+    }
+
+      setData((prev) => [
+        ...prev,
+        {
+          email: values.email,
+          name: values.name,
+          roll_number: values.roll_number,
+          phone: values.phone,
+          college: values.college,
+          department: values.department,
+          year: values.year,
+          type: values.type,
+          password: values.password,
+        },
+      ]);
+
+
+      fetch(`${process.env.REACT_APP_FETCH_URL}/admin/add_student`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access_token"),
+        },
+        body: JSON.stringify({
+          email: values.email,
+          name: values.name,
+          roll_number: values.roll_number,
+          phone: values.phone,
+          college: values.college,
+          department: values.department,
+          year: values.year,
+          type: values.type,
+          password: values.password,
+        }),
+      })
+        .then((response) => response.json())
+        .then(() => {
+          close3();
+          form.reset();
+          // setFrom(null);
+          // setTo(null);
+        })
+        .catch((e) => {
+          toast.error(e.message);
+        });
+
+      // close3();
+      // form.reset();
+      // setFrom(null);
+      // setTo(null);
+
   };
 
   return (
@@ -88,10 +161,48 @@ const AdminStudents = (props) => {
             />
 
             <TextInput
+              label="Phone"
+              placeholder="Phone"
+              {...form.getInputProps("phone")}
+            />
+
+            <TextInput
               label="College"
               placeholder="College"
               {...form.getInputProps("college")}
             />
+
+            <TextInput
+              label="Department"
+              placeholder="Department"
+              {...form.getInputProps("department")}
+            />
+          
+            <NumberInput
+              label="Year"
+              placeholder="Year"
+              {...form.getInputProps("year")}
+            />
+            <Select
+              label="Type"
+              placeholder="Type"
+              data={[
+                { label: "External", value: "external" },
+                { label: "Internal", value: "internal" },
+              ]}
+              {...form.getInputProps("type")}
+            />
+            <TextInput
+              label="Password"
+              placeholder="Password"
+              {...form.getInputProps("password")}
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
+            >
+              Submit
+            </button>
           </form>
         </Modal>
       </div>
@@ -143,6 +254,13 @@ const AdminStudents = (props) => {
             ))}
         </Table.Tbody>
       </Table>
+      <button
+        onClick={open3}
+        className="flex gap-1 items-center bg-blue-500 w-fit m-auto px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
+      >
+        <Plus className="w-5 h-5" />
+        <span>New Student</span>
+      </button>
     </div>
   );
 };
