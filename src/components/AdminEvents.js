@@ -11,9 +11,10 @@ import {
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const AdminEvents = () => {
   const input = [
@@ -105,10 +106,42 @@ const AdminEvents = () => {
           info: values.info,
         },
       ]);
-      close3();
-      form.reset();
-      setFrom(null);
-      setTo(null);
+
+
+      fetch(`${process.env.REACT_APP_FETCH_URL}/admin/add_event`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access_token"),
+        },
+        body: JSON.stringify({
+          name: values.name,
+          type: values.type,
+          start_date_time: from,
+          end_date_time: to,
+          location: values.location,
+          first_prize: values.first_prize,
+          second_prize: values.second_prize,
+          third_prize: values.third_prize,
+          info: values.info,
+        }),
+      })
+        .then((response) => response.json())
+        .then(() => {
+          close3();
+          form.reset();
+          setFrom(null);
+          setTo(null);
+        })
+        .catch((e) => {
+          toast.error(e.message);
+        });
+
+      // close3();
+      // form.reset();
+      // setFrom(null);
+      // setTo(null);
+
     }
   };
 
