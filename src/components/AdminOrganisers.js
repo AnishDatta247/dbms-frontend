@@ -6,16 +6,16 @@ import { format } from "date-fns";
 import { Info, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const AdminStudents = (props) => {
+const AdminOrganisers = (props) => {
   
 const [data,setData]=useState();
 const [search, setSearch] = useState("");
 
 useEffect(() => {
-    console.log(props.studentdata)
-    if(!props.studentdata) return;
-    setData(props.studentdata);
-  }, [search, props.studentdata]);
+    console.log(props.organiserdata)
+    if(!props.organiserdata) return;
+    setData(props.organiserdata);
+  }, [search, props.organiserdata]);
 
   console.log(data);
 
@@ -31,23 +31,13 @@ useEffect(() => {
     initialValues: {
       email: "",
       name: "",
-      roll_number: "",
       phone: "",
-      college: "",
-      department: "",
-      year: "",
-      type: "",
+      events_sponsered: "",
     },
     validate: {
         email: (value) => (value.length > 0 ? null : "Type is required"),
         name: (value) => (value.length > 0 ? null : "Name is required"),
-        roll_number: (value) => (value.length > 0 ? null : "Roll Number is required"),
         phone: (value) => (value.length > 0 ? null : "Phone is required"),
-        college: (value) => (value.length > 0 ? null : "college is required"),
-        department: (value) => (value.length > 0 ? null : "department is required"),
-        year: (value) => (value.length > 0 ? null : "year is required"),
-        type: (value) => (value.length > 0 ? null : "type is required"),
-
     },
   });
 
@@ -55,8 +45,8 @@ useEffect(() => {
     return format(dateTime, "do MMM yyyy, h:mm a");
   };
 
-  const onDelete = (sid) => {
-    console.log("DELETING: ", sid);
+  const onDelete = (oid) => {
+    console.log("DELETING: ", oid);
     close2();
   };
 
@@ -67,14 +57,14 @@ useEffect(() => {
   return (
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
-        <span className="font-semibold text-3xl">Students</span>
+        <span className="font-semibold text-3xl">organisers</span>
         <button
           onClick={open3}
           className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
         >
           New
         </button>
-        <Modal opened={opened3} onClose={close3} title="New Student">
+        <Modal opened={opened3} onClose={close3} title="New organiser">
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
           <TextInput
               label="Email"
@@ -88,17 +78,10 @@ useEffect(() => {
             />
 
             <TextInput
-                label="Roll Number"
-                placeholder="Roll Number"
-                {...form.getInputProps("roll_number")}
+                label="Phone"
+                placeholder="Phone"
+                {...form.getInputProps("phone")}
                 />
-
-            
-             <TextInput
-              label="College"
-              placeholder="College"
-              {...form.getInputProps("college")}
-            />
 
           </form>
         </Modal>
@@ -108,27 +91,17 @@ useEffect(() => {
           <Table.Tr>
             <Table.Th>Name</Table.Th>
             <Table.Th>Email</Table.Th>
-            <Table.Th>Roll Number</Table.Th>
             <Table.Th>Phone</Table.Th>
-            <Table.Th>College</Table.Th>
-            <Table.Th>Department</Table.Th>
-            <Table.Th>Year</Table.Th>
-            <Table.Th>Type</Table.Th>
             <Table.Th>Delete</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {data &&
-            data.map((student) => (
-              <Table.Tr key={student.sid}>
-                <Table.Td>{student.name}</Table.Td>
-                <Table.Td>{student.email}</Table.Td>
-                <Table.Td>{student.roll_number}</Table.Td>
-                <Table.Td>{student.phone}</Table.Td>
-                <Table.Td>{student.college}</Table.Td>
-                <Table.Td>{student.department}</Table.Td>
-                <Table.Td>{student.year}</Table.Td>
-                <Table.Td>{student.type}</Table.Td>
+            data.map((organiser) => (
+              <Table.Tr key={organiser.oid}>
+                <Table.Td>{organiser.name}</Table.Td>
+                <Table.Td>{organiser.email}</Table.Td>
+                <Table.Td>{organiser.phone}</Table.Td>
                 
                 
                 <Table.Td>
@@ -138,9 +111,9 @@ useEffect(() => {
                     opened={opened2}
                     onClose={close2}
                   >
-                    <p>Do you want to delete this student?</p>
+                    <p>Do you want to delete this organiser?</p>
                     <button
-                      onClick={() => onDelete(student.sid)}
+                      onClick={() => onDelete(organiser.oid)}
                       className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
                     >
                       Delete
@@ -156,4 +129,4 @@ useEffect(() => {
   );
 };
 
-export default AdminStudents;
+export default AdminOrganisers;
