@@ -23,6 +23,8 @@ const Dashboard = () => {
   const [type, setType] = useState("");
   const [data, setData] = useState();
   const [events, setEvents] = useState();
+
+  // fetch profile
   useEffect(() => {
     fetch(`${process.env.REACT_APP_FETCH_URL}/profile`, {
       method: "GET",
@@ -33,23 +35,23 @@ const Dashboard = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data.hasOwnProperty('sid'));
         setData(data);
-        if(data.hasOwnProperty('sid')){
-          setType('student');
-        }
-        else if (data.hasOwnProperty('oid')){
-          setType('organiser');
-        }
-        else setType('admin');        
+        if (data.hasOwnProperty("sid")) {
+          setType("student");
+        } else if (data.hasOwnProperty("oid")) {
+          setType("organiser");
+        } else setType("admin");
+      })
+      .catch((e) => {
+        toast.error(e.message);
       });
   }, []);
 
   useEffect(() => {
-    if(!type) return;
+    if (!type) return;
     var base_url = process.env.REACT_APP_FETCH_URL;
-    if (type === 'student' || type === 'organiser')base_url+= "/event";
-    else base_url+= "/admin/events"
+    if (type === "student" || type === "organiser") base_url += "/event";
+    else base_url += "/admin/events";
     fetch(base_url, {
       method: "GET",
       headers: {
@@ -60,19 +62,22 @@ const Dashboard = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        setEvents(data)
+        setEvents(data);
+      })
+      .catch((e) => {
+        toast.error(e.message);
       });
   }, [type]);
 
-  console.log("user type is "+ type);
+  console.log("user type is " + type);
   const [opened, { toggle }] = useDisclosure();
   const [tab, setTab] = useState(() => {
     var prevTab = localStorage.getItem("tab") || 0;
     return parseInt(prevTab);
   });
   const [eid, setEid] = useState(() => {
-    var eventId = localStorage.getItem("eid")
-    return eventId
+    var eventId = localStorage.getItem("eid");
+    return eventId;
   });
 
   const saveTab = (tab) => {
@@ -82,26 +87,9 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   fetch("http://10.109.10.13:8080/profile", {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: "Bearer " + localStorage.getItem("access_token"),
-  //     },
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => console.log(data));
-  // }, []);
-
-  useEffect(() => {
-    console.log(tab);
-  }, [tab]);
-
-  if (!localStorage.getItem("access_token")) {
-    // console.log("HII");
-    return <Navigate to="/login" replace />;
-  }
+  // if (!localStorage.getItem("access_token")) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   return (
     <AppShell
@@ -239,14 +227,13 @@ const Dashboard = () => {
 
       <AppShell.Main>
         {tab === 0 ? (
-          console.log("type is "+ type),
-          <Events setTab={setTab} setEid={setEid} type={type} events={events}/>
+          <Events setTab={setTab} setEid={setEid} type={type} events={events} />
         ) : tab === 1 ? (
-          <Schedule events={events}/>
+          <Schedule events={events} />
         ) : tab === 2 ? (
           <Accomodation />
         ) : tab === 3 ? (
-          <Profile type={type} data={data}/>
+          <Profile type={type} data={data} />
         ) : tab === 4 ? (
           <Event eid={eid} setTab={setTab} setEventsData={setEvents} />
         ) : tab === 5 ? (

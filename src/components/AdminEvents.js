@@ -67,13 +67,11 @@ const AdminEvents = () => {
   };
 
   const onDelete = (id) => {
-    console.log("DELETING: ", id);
     setData((prev) => prev.filter((event) => event.id !== id));
     close2();
   };
 
   const dateString = (dateTime) => {
-    console.log(format(dateTime, "yyyy-MM-dd"));
     return format(dateTime, "yyyy-MM-dd");
   };
 
@@ -91,11 +89,6 @@ const AdminEvents = () => {
     if (from && to) {
       setFromError("");
       setToError("");
-      console.log("SUCCESS", {
-        ...values,
-        from: dateString(from),
-        to: dateString(to),
-      });
       //   add record
       setData((prev) => [
         ...prev,

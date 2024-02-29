@@ -60,12 +60,6 @@ const Accomodation = () => {
     if (from && to) {
       setFromError("");
       setToError("");
-      console.log("SUCCESS", {
-        ...values,
-        from: dateString(from),
-        to: dateString(to),
-        payment: paymentCalc(),
-      });
     }
   };
 

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Events = (props) => {
-  console.log("User type is "+ props.type)
   const input = [
     {
       id: 1,
@@ -49,8 +48,6 @@ const Events = (props) => {
     },
   ];
 
-  
-
   const [filteredData, setFilteredData] = useState([]);
   const [search, setSearch] = useState("");
 
@@ -64,10 +61,6 @@ const Events = (props) => {
       )
     );
   }, [search, props.events]);
-
-  useEffect(() => {
-    console.log(props.events)
-  }, [props.events])
 
   const dateTimeFormatter = (dateTime) => {
     return format(dateTime, "do MMM yyyy, h:mm a");

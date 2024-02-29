@@ -8,7 +8,6 @@ const SignupOrganizer = () => {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (values) => {
-    console.log(values);
     setLoading(true);
     await fetch(`${process.env.REACT_APP_FETCH_URL}/signup_organiser`, {
       method: "POST",
@@ -16,16 +15,20 @@ const SignupOrganizer = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(values),
-    }).then(async (res) => {
-      let jsonData = await res.json();
-      console.log(jsonData);
-      if (!res.ok) {
-        toast.error(jsonData.message);
-      } else {
-        toast.success(jsonData.message);
-      }
-      setLoading(false);
-    });
+    })
+      .then(async (res) => {
+        let jsonData = await res.json();
+        if (!res.ok) {
+          toast.error(jsonData.message);
+        } else {
+          toast.success(jsonData.message);
+        }
+        setLoading(false);
+      })
+      .catch((e) => {
+        toast.error(e.message);
+        setLoading(false);
+      });
   };
 
   const form = useForm({

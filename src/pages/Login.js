@@ -15,22 +15,25 @@ const Login = () => {
     await fetch(`${process.env.REACT_APP_FETCH_URL}/login`, {
       method: "POST",
       headers: {
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(values),
-    }).then(async (res) => {
-      let jsonData = await res.json();
-      console.log(jsonData);
-      if (!res.ok) {
-        toast.error(jsonData.message);
-      } else {
-        localStorage.setItem("access_token", jsonData.access_token);
-        navigate("/dashboard");
-        toast.success("Logged in successfully!");
-      }
-      setLoading(false);
-    });
+    })
+      .then(async (res) => {
+        let jsonData = await res.json();
+        if (!res.ok) {
+          toast.error(jsonData.message);
+        } else {
+          localStorage.setItem("access_token", jsonData.access_token);
+          navigate("/dashboard");
+          toast.success("Logged in successfully!");
+        }
+        setLoading(false);
+      })
+      .catch((e) => {
+        toast.error(e.message);
+        setLoading(false);
+      });
   };
 
   const form = useForm({
@@ -45,7 +48,6 @@ const Login = () => {
   });
 
   if (localStorage.getItem("access_token")) {
-    // console.log("HII");
     return <Navigate to="/dashboard" replace />;
   }
 

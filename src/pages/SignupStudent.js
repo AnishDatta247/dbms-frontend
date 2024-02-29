@@ -25,17 +25,21 @@ const SignupStudent = (props) => {
         ...values,
         type: props.type === "native" ? "internal" : "external",
       }),
-    }).then(async (res) => {
-      let jsonData = await res.json();
-      console.log(jsonData);
-      if (!res.ok) {
-        toast.error(jsonData.message);
-      } else {
-        toast.success(jsonData.message);
-        return jsonData;
-      }
-      setLoading(false);
-    });
+    })
+      .then(async (res) => {
+        let jsonData = await res.json();
+        if (!res.ok) {
+          toast.error(jsonData.message);
+        } else {
+          toast.success(jsonData.message);
+          return jsonData;
+        }
+        setLoading(false);
+      })
+      .catch((e) => {
+        toast.error(e.message);
+        setLoading(false);
+      });
   };
 
   const [active, setActive] = useState(0);
@@ -87,7 +91,6 @@ const SignupStudent = (props) => {
   });
 
   const nextStep = () => {
-    console.log("FUNCTION CALLED");
     if (!form.validate().hasErrors) {
       if (active === 0) setActive(1);
       else {
