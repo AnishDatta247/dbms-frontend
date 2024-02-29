@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import AdminAccodomations from "../components/AdminAccomodations";
 import AdminStudents from "../components/AdminStudents";
 import AdminEvents from "../components/AdminEvents";
+import AdminOrganisers from "../components/AdminOrganisers";
 
 const Dashboard = () => {
   const [type, setType] = useState("");
@@ -55,6 +56,41 @@ const Dashboard = () => {
         toast.error(e.message);
       });
   }, []);
+
+ const [studentdata,setstudentdata]=useState();
+
+ useEffect(() => {
+    if(type!="admin") return;
+      fetch(`${process.env.REACT_APP_FETCH_URL}/admin/all_students`,{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access_token"),
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {                      
+              setstudentdata(data);
+          });
+  }, [type]);
+
+  const [organiserdata,setorganiserdata]=useState();
+
+ useEffect(() => {
+    if(type!="admin") return;
+      fetch(`${process.env.REACT_APP_FETCH_URL}/admin/all_organisers`,{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access_token"),
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {                      
+              setorganiserdata(data);
+          });
+  }, [type]);
+
 
   useEffect(() => {
     if (!type) return;
@@ -222,6 +258,20 @@ const Dashboard = () => {
               <span className="font-semibold text-md">Students</span>
             </li>
           )}
+          {type == "admin" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 8 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(8);
+                toggle();
+              }}
+            >
+              <CircleUserRound className="w-6 h-6" />
+              <span className="font-semibold text-md">Organisers</span>
+            </li>
+          )}
         </ul>
       </AppShell.Navbar>
 
@@ -241,7 +291,9 @@ const Dashboard = () => {
         ) : tab === 6 ? (
           <AdminAccodomations />
         ) : tab === 7 ? (
-          <AdminStudents />
+          <AdminStudents setTab={setTab} studentdata={studentdata} />
+          ) : tab === 8 ? (
+            <AdminOrganisers setTab={setTab} organiserdata={organiserdata} />
         ) : null}
       </AppShell.Main>
     </AppShell>
