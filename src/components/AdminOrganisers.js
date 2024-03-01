@@ -67,6 +67,7 @@ const AdminOrganisers = (props) => {
       .then(() => {
         close2();
         setData((prev) => prev.filter((organiser) => organiser.oid !== oid));
+        toast.success("Organiser Deleted");
       })
       .catch((e) => {
         toast.error(e.message);
@@ -134,6 +135,9 @@ const AdminOrganisers = (props) => {
             })
           );
         }
+        toast.success(
+          selectModal === 0 ? "Organiser Updated" : "Organiser Added"
+        );
       })
       .catch((e) => {
         toast.error(e.message);

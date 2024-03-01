@@ -76,6 +76,7 @@ const AdminEvents = ({ data, setData }) => {
       .then(() => {
         setData((prev) => prev.filter((event) => event.eid !== eid));
         close2();
+        toast.success("Event deleted");
       })
       .catch((e) => {
         toast.error(e.message);
@@ -168,6 +169,7 @@ const AdminEvents = ({ data, setData }) => {
                   : event
               )
             );
+          toast.success(selectModal === 0 ? "Event Added" : "Event Updated");
         })
         .catch((e) => {
           toast.error(e.message);

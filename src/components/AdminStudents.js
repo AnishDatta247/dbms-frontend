@@ -89,6 +89,7 @@ const AdminStudents = (props) => {
       .then(() => {
         setData((prev) => prev.filter((student) => student.sid !== sid));
         close2();
+        toast.success("Student Deleted");
       })
       .catch((e) => {
         toast.error(e.message);
@@ -148,6 +149,7 @@ const AdminStudents = (props) => {
                 : student
             )
           );
+        toast.success(selectModal === 0 ? "Student Added" : "Student Updated");
       })
       .catch((e) => {
         toast.error(e.message);
