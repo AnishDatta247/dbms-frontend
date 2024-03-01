@@ -35,8 +35,14 @@ const AdminOrganisers = (props) => {
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
       name: (value) => (value.length > 0 ? null : "Name is required"),
-      phone: (value) => (value.length > 0 ? null : "Phone is required"),
-      password: (value) => (value.length > 5 ? null : "Atleast 6 characters"),
+      phone: (value) =>
+        value.length > 0
+          ? /^\d{10}$/g.test(value)
+            ? null
+            : "Invalid Phone Number"
+          : "Phone number is required",
+      password: (value) =>
+        selectModal === 1 || value.length > 5 ? null : "Atleast 6 characters",
     },
   });
 
@@ -46,7 +52,10 @@ const AdminOrganisers = (props) => {
 
   const onDelete = (oid) => {
     console.log("DELETING: ", oid);
-    console.log("DELETING: ", `${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/` + oid);
+    console.log(
+      "DELETING: ",
+      `${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/` + oid
+    );
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/` + oid, {
       method: "DELETE",
       headers: {
@@ -71,35 +80,60 @@ const AdminOrganisers = (props) => {
     if (Object.keys(form.errors).length > 0) {
       return;
     }
-    setData((prev) => [
-      ...prev,
-      {
-        email: values.email,
-        name: values.name,
-        phone: values.phone,
-        password: values.password,
-      },
-    ]);
-    // console.log()/
-    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/add_organiser`, {
-      method: "POST",
+
+    const url =
+      selectModal === 1 ? "/admin/update_organiser" : "/admin/add_organiser";
+    fetch(`${process.env.REACT_APP_FETCH_URL}${url}`, {
+      method: selectModal === 0 ? "POST" : "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("access_token"),
       },
-      body: JSON.stringify({
-        email: values.email,
-        name: values.name,
-        phone: values.phone,
-        password: values.password,
-      }),
+      body: JSON.stringify(
+        selectModal === 0
+          ? {
+              email: values.email,
+              name: values.name,
+              phone: values.phone,
+              password: values.password,
+            }
+          : {
+              oid: modalData.oid,
+              email: values.email,
+              name: values.name,
+              phone: values.phone,
+            }
+      ),
     })
       .then((response) => response.json())
       .then(() => {
         close3();
         form.reset();
-        // setFrom(null);
-        // setTo(null);
+        if (selectModal === 0) {
+          setData((prev) => [
+            ...prev,
+            {
+              email: values.email,
+              name: values.name,
+              phone: values.phone,
+              password: values.password,
+            },
+          ]);
+        } else {
+          setData((prev) =>
+            prev.map((organiser) => {
+              if (organiser.oid === modalData.oid) {
+                return {
+                  ...organiser,
+                  name: values.name,
+                  phone: values.phone,
+                  email: values.email,
+                };
+              }
+              return organiser;
+            })
+          );
+        }
       })
       .catch((e) => {
         toast.error(e.message);
@@ -110,7 +144,12 @@ const AdminOrganisers = (props) => {
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
         <span className="font-semibold text-3xl">Organisers</span>{" "}
-        <Modal centered opened={opened3} onClose={close3} title="New organiser">
+        <Modal
+          centered
+          opened={opened3}
+          onClose={close3}
+          title={selectModal === 0 ? "New organiser" : "Update organiser"}
+        >
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
             <TextInput
               label="Email"
@@ -131,6 +170,7 @@ const AdminOrganisers = (props) => {
             <TextInput
               label="Password"
               placeholder="Password"
+              disabled={selectModal === 1}
               {...form.getInputProps("password")}
             />
             <button
@@ -161,8 +201,8 @@ const AdminOrganisers = (props) => {
           opened={opened1}
           onClose={close1}
         >
-
-          {/* iterate on organisr.events_sponsered using loop and print */
+          {
+            /* iterate on organisr.events_sponsered using loop and print */
 
             <div>
               {/* make a tabe to display  */}
@@ -174,19 +214,16 @@ const AdminOrganisers = (props) => {
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {modalData?.events_sponsored && modalData.events_sponsored.map((event1) => (
-                    <Table.Tr key={event1.eid}>
-                      <Table.Td>{event1.name}</Table.Td>
-                      <Table.Td>{event1.payment_status}</Table.Td>
-                    </Table.Tr>
-                  ))}
+                  {modalData?.events_sponsored &&
+                    modalData.events_sponsored.map((event1) => (
+                      <Table.Tr key={event1.eid}>
+                        <Table.Td>{event1.name}</Table.Td>
+                        <Table.Td>{event1.payment_status}</Table.Td>
+                      </Table.Tr>
+                    ))}
                 </Table.Tbody>
-
               </Table>
             </div>
-
-
-
           }
         </Modal>
       </div>
@@ -210,25 +247,33 @@ const AdminOrganisers = (props) => {
                 <Table.Td>{organiser.phone}</Table.Td>
 
                 <Table.Td>
-
                   <Info onClick={open1} className="w-4 h-4" />
                 </Table.Td>
 
                 <Table.Td>
-                  <Pen onClick={() => {
-                    setSelectModal(1);
-                    form.
-                    open3();
-                  }
-                  } className="w-5 h-5 text-blue-600" />
-
+                  <Pen
+                    onClick={() => {
+                      setSelectModal(1);
+                      setModalData(organiser);
+                      form.setValues({
+                        email: organiser.email,
+                        name: organiser.name,
+                        phone: organiser.phone,
+                      });
+                      open3();
+                    }}
+                    className="w-5 h-5"
+                  />
                 </Table.Td>
 
                 <Table.Td>
-                  <Trash2 onClick={() => {
-                    setModalData(organiser);
-                    open2();
-                  }} className="w-5 h-5 text-red-600" />
+                  <Trash2
+                    onClick={() => {
+                      setModalData(organiser);
+                      open2();
+                    }}
+                    className="w-5 h-5 text-red-600"
+                  />
                 </Table.Td>
               </Table.Tr>
             ))}
