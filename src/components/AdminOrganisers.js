@@ -3,13 +3,15 @@ import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
-import { Info, Plus, Trash2 } from "lucide-react";
+import { Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const AdminOrganisers = (props) => {
   const [data, setData] = useState();
   const [search, setSearch] = useState("");
+  const [modalData, setModalData] = useState();
+  const [selectModal, setSelectModal] = useState(false);
 
   useEffect(() => {
     console.log(props.organiserdata);
@@ -47,8 +49,8 @@ const AdminOrganisers = (props) => {
 
   const onDelete = (oid) => {
     console.log("DELETING: ", oid);
-    console.log("DELETING: ", `${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/`+ oid);
-    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_student/`+ oid, {
+    console.log("DELETING: ", `${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/` + oid);
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/` + oid, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -58,6 +60,7 @@ const AdminOrganisers = (props) => {
       .then((response) => response.json())
       .then(() => {
         close2();
+        setData((prev) => prev.filter((organiser) => organiser.oid !== oid));
       })
       .catch((e) => {
         toast.error(e.message);
@@ -142,6 +145,54 @@ const AdminOrganisers = (props) => {
             </button>
           </form>
         </Modal>
+        <Modal
+          centered
+          title="Confirm Delete"
+          opened={opened2}
+          onClose={close2}
+        >
+          <p>Do you want to delete this organiser?</p>
+          <button
+            onClick={() => onDelete(modalData.oid)}
+            className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
+          >
+            Delete
+          </button>
+        </Modal>
+        <Modal
+          centered
+          title="Sponsored Events"
+          opened={opened1}
+          onClose={close1}
+        >
+
+          {/* iterate on organisr.events_sponsered using loop and print */
+
+            <div>
+              {/* make a tabe to display  */}
+              <Table striped highlightOnHover withTableBorder>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Event Name</Table.Th>
+                    <Table.Th>Payment Status</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {modalData?.events_sponsored && modalData.events_sponsored.map((event1) => (
+                    <Table.Tr key={event1.eid}>
+                      <Table.Td>{event1.name}</Table.Td>
+                      <Table.Td>{event1.payment_status}</Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+
+              </Table>
+            </div>
+
+
+
+          }
+        </Modal>
       </div>
       <Table striped highlightOnHover withTableBorder>
         <Table.Thead>
@@ -150,6 +201,7 @@ const AdminOrganisers = (props) => {
             <Table.Th>Email</Table.Th>
             <Table.Th>Phone</Table.Th>
             <Table.Th>Sponsered Events</Table.Th>
+            <Table.Th>Update</Table.Th>
             <Table.Th>Delete</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -162,66 +214,35 @@ const AdminOrganisers = (props) => {
                 <Table.Td>{organiser.phone}</Table.Td>
 
                 <Table.Td>
-                  <Modal
-                      centered
-                      title="Sponsored Events"
-                      opened={opened1}
-                      onClose={close1}
-                    >
-                      
-                      {/* iterate on organisr.events_sponsered using loop and print */
-                      
-                        <div>
-                         {/* make a tabe to display  */}
-                          <Table striped highlightOnHover withTableBorder>
-                          <Table.Thead>
-                            <Table.Tr>
-                              <Table.Th>Event Name</Table.Th>
-                              <Table.Th>Payment Status</Table.Th>
-                            </Table.Tr>
-                          </Table.Thead>
-                          <Table.Tbody>
-                            {organiser.events_sponsored && organiser.events_sponsored.map((event1) => (
-                            <Table.Tr key={event1.eid}>
-                              <Table.Td>{event1.name}</Table.Td>
-                              <Table.Td>{event1.payment_status}</Table.Td>
-                            </Table.Tr>
-                            ))}
-                          </Table.Tbody>
-                          
-                        </Table>
-                        </div>
-                      
-                      
 
-                      }
-                      </Modal>
                   <Info onClick={open1} className="w-4 h-4" />
                 </Table.Td>
 
                 <Table.Td>
-                  <Modal
-                    centered
-                    title="Confirm Delete"
-                    opened={opened2}
-                    onClose={close2}
-                  >
-                    <p>Do you want to delete this organiser?</p>
-                    <button
-                      onClick={() => onDelete(organiser.oid)}
-                      className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-                    >
-                      Delete
-                    </button>
-                  </Modal>
-                  <Trash2 onClick={open2} className="w-5 h-5 text-red-600" />
+                  <Pen onClick={() => {
+                    setSelectModal(1);
+                    form.
+                    open3();
+                  }
+                  } className="w-5 h-5 text-blue-600" />
+
+                </Table.Td>
+
+                <Table.Td>
+                  <Trash2 onClick={() => {
+                    setModalData(organiser);
+                    open2();
+                  }} className="w-5 h-5 text-red-600" />
                 </Table.Td>
               </Table.Tr>
             ))}
         </Table.Tbody>
       </Table>
       <button
-        onClick={open3}
+        onClick={() => {
+          setSelectModal(0);
+          open3();
+        }}
         className="flex gap-1 items-center bg-blue-500 w-fit m-auto px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
       >
         <Plus className="w-5 h-5" />
