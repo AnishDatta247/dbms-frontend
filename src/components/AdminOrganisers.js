@@ -25,21 +25,18 @@ const AdminOrganisers = (props) => {
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
 
-  const [from, setFrom] = useState(null);
-  const [to, setTo] = useState(null);
-  const [fromError, setFromError] = useState("");
-  const [toError, setToError] = useState("");
   const form = useForm({
     initialValues: {
       email: "",
       name: "",
       phone: "",
-      events_sponsered: "",
+      password: "",
     },
     validate: {
-      email: (value) => (value.length > 0 ? null : "Type is required"),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
       name: (value) => (value.length > 0 ? null : "Name is required"),
       phone: (value) => (value.length > 0 ? null : "Phone is required"),
+      password: (value) => (value.length > 5 ? null : "Atleast 6 characters"),
     },
   });
 
@@ -65,7 +62,6 @@ const AdminOrganisers = (props) => {
       .catch((e) => {
         toast.error(e.message);
       });
-
   };
 
   const onSubmit = (values) => {
@@ -113,7 +109,7 @@ const AdminOrganisers = (props) => {
   return (
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
-        <span className="font-semibold text-3xl">organisers</span>{" "}
+        <span className="font-semibold text-3xl">Organisers</span>{" "}
         <Modal centered opened={opened3} onClose={close3} title="New organiser">
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
             <TextInput
