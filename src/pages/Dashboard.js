@@ -24,6 +24,7 @@ import AdminOrganisers from "../components/AdminOrganisers";
 
 const Dashboard = () => {
   const [type, setType] = useState("");
+  const [studentType, setStudentType] = useState("");
   const [data, setData] = useState();
   const [dataViewProfile, setDataViewProfile] = useState();
   const [events, setEvents] = useState();
@@ -53,6 +54,8 @@ const Dashboard = () => {
         setData(data);
         if (data.hasOwnProperty("sid")) {
           setType("student");
+          if (data.type === "external") setStudentType("external");
+          else setStudentType("internal");
         } else if (data.hasOwnProperty("oid")) {
           setType("organiser");
         } else {
@@ -194,7 +197,7 @@ const Dashboard = () => {
               <span className="font-semibold text-md">Schedule</span>
             </li>
           )}
-          {type === "guest" && (
+          {studentType === "external" && type === "student" && (
             <li
               className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
                 tab === 2 ? "bg-blue-200 text-blue-600" : ""
@@ -297,6 +300,7 @@ const Dashboard = () => {
         ) : tab === 4 ? (
           <Event
             eid={eid}
+            sid={data?.sid}
             setTab={setTab}
             setEventsData={setEvents}
             setDataViewProfile={setDataViewProfile}

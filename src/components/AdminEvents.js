@@ -8,7 +8,7 @@ import {
   Textarea,
   Tooltip,
 } from "@mantine/core";
-import { DateInput } from "@mantine/dates";
+import { DateInput, DateTimePicker } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format, set } from "date-fns";
@@ -89,8 +89,19 @@ const AdminEvents = ({ data, setData }) => {
 
   const onSubmit = (values) => {
     form.validate();
-    if (Object.keys(form.errors).length == 0 && from && to && from <= to) {
+    if (
+      Object.keys(form.errors).length == 0 &&
+      from &&
+      to &&
+      from <= to &&
+      from >= new Date()
+    ) {
       //   add record
+      const timedel = new Date();
+      timedel.setDate(0, 0, 0, 0);
+      timedel.setHours(0, 0, 0, 0);
+      timedel.setHours(6);
+      timedel.setMinutes(30);
       const fetchUrl =
         selectModal === 0
           ? `${process.env.REACT_APP_FETCH_URL}/admin/add_event`
@@ -104,8 +115,8 @@ const AdminEvents = ({ data, setData }) => {
         body: JSON.stringify({
           name: values.name,
           type: values.type,
-          start_date_time: dateString(from),
-          end_date_time: dateString(to),
+          start_date_time: dateString(from - timedel),
+          end_date_time: dateString(to - timedel),
           location: values.location,
           first_prize:
             values.type === "competition" ? values.first_prize : "None",
@@ -185,6 +196,9 @@ const AdminEvents = ({ data, setData }) => {
     } else if (from > to) {
       setToError("To date should be after than from date");
       return;
+    } else if (from < new Date()) {
+      setFromError("From date should be after current date");
+      return;
     } else setToError("");
     if (Object.keys(form.errors).length > 0) {
       return;
@@ -251,7 +265,7 @@ const AdminEvents = ({ data, setData }) => {
 
             <div className="flex gap-4 w-full">
               <div className="w-full">
-                <DateInput
+                <DateTimePicker
                   mt="md"
                   label="From"
                   placeholder="From"
@@ -263,7 +277,7 @@ const AdminEvents = ({ data, setData }) => {
               </div>
 
               <div className="w-full">
-                <DateInput
+                <DateTimePicker
                   mt="md"
                   label="To"
                   placeholder="Till"

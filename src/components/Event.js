@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { ArrowLeft, Pen, IndianRupee } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Confetti from "./confetti";
 
 const Event = (props) => {
   const [data, setData] = useState();
@@ -61,23 +62,36 @@ const Event = (props) => {
 
   const form3 = useForm({
     initialValues: {
-      first_winner: "",
-      second_winner: "",
-      third_winner: "",
+      first_winner: data?.first_winner || "",
+      second_winner: data?.second_winner || "",
+      third_winner: data?.third_winner || "",
     },
     validate: {
       first_winner: (value) =>
         value.length > 0 ? null : "First winner required",
       second_winner: (value, values) =>
         value.length > 0
-          ? value != values.first_winner
+          ? value != values.first_winner && value != values.third_winner
             ? null
             : "Second winner cannot be same as first winner"
           : "Second winner required",
-      third_winner: (value) =>
-        value.length > 0 ? null : "Third winner required",
+      third_winner: (value, values) =>
+        value.length > 0
+          ? value != values.second_prize && value != values.first_winner
+            ? null
+            : "Third winner cannot be same as second winner"
+          : "Third winner required",
     },
   });
+
+  useEffect(() => {
+    if (!data?.first_winner) return;
+    form3.setValues({
+      first_winner: data.first_winner.sid,
+      second_winner: data.second_winner.sid,
+      third_winner: data.third_winner.sid,
+    });
+  }, [data]);
 
   const onClick1 = () => {
     //register
@@ -196,8 +210,26 @@ const Event = (props) => {
   };
 
   const onSubmit = (values) => {
-    // Declare Winners
-    console.log(values);
+    fetch(
+      `${process.env.REACT_APP_FETCH_URL}/organiser/set_winners/${props.eid}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access_token"),
+        },
+        body: JSON.stringify({
+          sid1: values.first_winner,
+          sid2: values.second_winner,
+          sid3: values.third_winner,
+        }),
+      }
+    )
+      .then((response) => response.json())
+      .then((resData) => {
+        toast.success("Winners declared!");
+      })
+      .catch((e) => toast.error(e.message));
   };
 
   const getRoleInfo = (role) => {
@@ -252,6 +284,10 @@ const Event = (props) => {
 
   return (
     <div className="ml-4">
+      {props.sid &&
+        (props.sid === data?.first_winner?.sid ||
+          props.sid === data?.second?.sid ||
+          props.sid === data?.third_winner?.sid) && <Confetti />}
       <button
         className="pr-4 pl-3 py-2 rounded-md border-2 font-semibold text-sm mt-2 flex gap-1 items-center"
         onClick={() => {
@@ -460,8 +496,37 @@ const Event = (props) => {
               </div>
             </div>
           )}
+          {"first_winner" in data && data && (
+            <div className="mt-4">
+              <span className="font-semibold text-xl">Winners</span>
+              <div className="flex gap-16 mt-2">
+                <div className="flex flex-col">
+                  <span className="border-yellow-500 w-fit text-yellow-500 font-semibold">
+                    1st Place
+                  </span>
+                  <span className="text-lg">{data.first_winner.name}</span>
+                  <span className="text-sm">{data.first_winner.email}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="border-neutral-300 text-neutral-400 font-semibold w-fit">
+                    2nd Place
+                  </span>
+                  <span className="text-lg">{data.second_winner.name}</span>
+                  <span className="text-sm">{data.first_winner.email}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="border-[#b08d57] text-[#b08d57] font-semibold w-fit">
+                    3rd Place
+                  </span>
+                  <span className="text-lg">{data.third_winner.name}</span>
+                  <span className="text-sm">{data.first_winner.email}</span>
+                </div>
+              </div>
+            </div>
+          )}
           {"logistics" in data && data && (
             <div className="mt-2 flex flex-col gap-2">
+              <hr />
               <span className="font-semibold text-xl">Declare Winners</span>
               {true && (
                 <form onSubmit={form3.onSubmit((values) => onSubmit(values))}>
@@ -470,6 +535,7 @@ const Event = (props) => {
                       className="min-w-64"
                       label="First Place Winner"
                       placeholder="Select first place"
+                      disabled={data.first_winner}
                       data={data?.participants?.map((participant) => {
                         return {
                           value: participant.sid,
@@ -492,6 +558,7 @@ const Event = (props) => {
                       className="min-w-64"
                       label="Second Place Winner"
                       placeholder="Select second place"
+                      disabled={data.first_winner}
                       data={data?.participants?.map((participant) => {
                         return {
                           value: participant.sid,
@@ -514,6 +581,7 @@ const Event = (props) => {
                       className="min-w-64"
                       label="Third Place Winner"
                       placeholder="Select third place"
+                      disabled={data.first_winner}
                       data={data?.participants?.map((participant) => {
                         return {
                           value: participant.sid,
@@ -532,9 +600,18 @@ const Event = (props) => {
                       )}
                       {...form3.getInputProps("third_winner")}
                     />
+                    {!data.first_winner && (
+                      <button
+                        type="submit"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg w-fit mt-3 text-sm font-semibold"
+                      >
+                        {data.first_winner ? "Update" : "Declare"}
+                      </button>
+                    )}
                   </div>
                 </form>
               )}
+              <hr />
             </div>
           )}
           {"logistics" in data && data && (
