@@ -47,7 +47,10 @@ const AdminStudents = (props) => {
         sid: values.sid,
         email: /^\S+@\S+$/.test(values.email) ? null : "Invalid email",
         name: values.name.trim().length > 0 ? null : "Name is required",
-        password: values.password.length > 5 ? null : "Atleast 6 characters",
+        password:
+          selectModal === 1 || values.password.length > 5
+            ? null
+            : "Atleast 6 characters",
         roll_number:
           values.roll_number.length > 0 ? null : "Roll number is required",
         phone:
@@ -93,32 +96,47 @@ const AdminStudents = (props) => {
   };
 
   const onSubmit = (values) => {
-    console.log(values);
+    console.log("HIII");
     const url =
       selectModal === 0
-        ? "/admin/add_student"
-        : `/admin/update_student/${modalData.sid}`;
+        ? `${process.env.REACT_APP_FETCH_URL}/admin/add_student`
+        : `${process.env.REACT_APP_FETCH_URL}/admin/update_student`;
+    console.log(url);
     fetch(url, {
       method: selectModal === 0 ? "POST" : "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("access_token"),
       },
-      body: JSON.stringify({
-        sid: modalData.sid,
-        email: values.email,
-        name: values.name,
-        roll_number: values.roll_number,
-        phone: values.phone,
-        college: values.college,
-        department: values.department,
-        year: values.year,
-        type: values.type,
-        password: values.password,
-      }),
+      body: JSON.stringify(
+        selectModal === 0
+          ? {
+              email: values.email,
+              name: values.name,
+              roll_number: values.roll_number,
+              phone: values.phone,
+              college: values.college,
+              department: values.department,
+              year: values.year,
+              type: values.type,
+              password: values.password,
+            }
+          : {
+              sid: modalData.sid,
+              email: values.email,
+              name: values.name,
+              roll_number: values.roll_number,
+              phone: values.phone,
+              college: values.college,
+              department: values.department,
+              year: values.year,
+              type: values.type,
+            }
+      ),
     })
       .then((response) => response.json())
-      .then(() => {
+      .then((resData) => {
+        console.log(resData);
         close1();
         form.reset();
         if (selectModal === 0) setData((prev) => [...prev, values]);
@@ -133,6 +151,7 @@ const AdminStudents = (props) => {
       })
       .catch((e) => {
         toast.error(e.message);
+        console.log(e);
       });
     close1();
   };
@@ -155,7 +174,12 @@ const AdminStudents = (props) => {
             Delete
           </button>
         </Modal>
-        <Modal centered opened={opened1} onClose={close1} title="New Student">
+        <Modal
+          centered
+          opened={opened1}
+          onClose={close1}
+          title={selectModal === 0 ? "New Student" : "Update Student"}
+        >
           <form
             className="gap-2 flex flex-col"
             onSubmit={form.onSubmit((values) => onSubmit(values))}
@@ -175,6 +199,7 @@ const AdminStudents = (props) => {
               label="Password"
               placeholder="Password"
               type="password"
+              disabled={selectModal === 1}
               {...form.getInputProps("password")}
             />
 
@@ -198,14 +223,13 @@ const AdminStudents = (props) => {
                 {...form.getInputProps("phone")}
               />
             </div>
-            {props.type === "guest" && (
-              <TextInput
-                mt="sm"
-                label="College"
-                placeholder="IIT KGP"
-                {...form.getInputProps("college")}
-              />
-            )}
+
+            <TextInput
+              mt="sm"
+              label="College"
+              placeholder="IIT KGP"
+              {...form.getInputProps("college")}
+            />
             <Select
               clearable
               placeholder="Department"
@@ -247,7 +271,8 @@ const AdminStudents = (props) => {
               ]}
             />
             <button
-              type="submit"
+              onClick={() => console.log(form.values)}
+              action="submit"
               className="mt-2 w-fit bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
             >
               Submit
@@ -286,9 +311,14 @@ const AdminStudents = (props) => {
                   <Pen
                     onClick={() => {
                       setSelectModal(1);
-                      console.log(student);
                       form.setValues({
-                        ...student,
+                        college: student.college,
+                        department: student.department,
+                        email: student.email,
+                        name: student.name,
+                        phone: student.phone,
+                        roll_number: student.roll_number,
+                        type: student.type,
                         year: student.year.toString(),
                       });
                       setModalData(student);
