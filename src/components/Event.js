@@ -47,6 +47,26 @@ const Event = (props) => {
     },
   });
 
+  const form3 = useForm({
+    initialValues: {
+      first_winner: "",
+      second_winner: "",
+      third_winner: "",
+    },
+    validate: {
+      first_winner: (value) =>
+        value.length > 0 ? null : "First winner required",
+      second_winner: (value, values) =>
+        value.length > 0
+          ? value != values.first_winner
+            ? null
+            : "Second winner cannot be same as first winner"
+          : "Second winner required",
+      third_winner: (value) =>
+        value.length > 0 ? null : "Third winner required",
+    },
+  });
+
   const onClick1 = () => {
     //register
     let status;
@@ -161,6 +181,11 @@ const Event = (props) => {
       .catch((e) => toast.error(e.message));
     close3();
     form2.reset();
+  };
+
+  const onSubmit = (values) => {
+    // Declare Winners
+    console.log(values);
   };
 
   const getRoleInfo = (role) => {
@@ -406,6 +431,83 @@ const Event = (props) => {
                   {data.first_prize}
                 </span>
               </div>
+            </div>
+          )}
+          {"logistics" in data && data && (
+            <div className="mt-2 flex flex-col gap-2">
+              <span className="font-semibold text-xl">Declare Winners</span>
+              {true && (
+                <form onSubmit={form3.onSubmit((values) => onSubmit(values))}>
+                  <div className="flex flex-col gap-2 lg:flex-row lg:gap-6">
+                    <Select
+                      className="min-w-64"
+                      label="First Place Winner"
+                      placeholder="Select first place"
+                      data={data?.participants?.map((participant) => {
+                        return {
+                          value: participant.sid,
+                          name: participant.name,
+                          email: participant.email,
+                          label: participant.name,
+                        };
+                      })}
+                      renderOption={({ option }) => (
+                        <div className="flex flex-col">
+                          <span>{option.name}</span>
+                          <span className="font-semibold text-xs">
+                            {option.email}
+                          </span>
+                        </div>
+                      )}
+                      {...form3.getInputProps("first_winner")}
+                    />
+                    <Select
+                      className="min-w-64"
+                      label="Second Place Winner"
+                      placeholder="Select second place"
+                      data={data?.participants?.map((participant) => {
+                        return {
+                          value: participant.sid,
+                          name: participant.name,
+                          email: participant.email,
+                          label: participant.name,
+                        };
+                      })}
+                      renderOption={({ option }) => (
+                        <div className="flex flex-col">
+                          <span>{option.name}</span>
+                          <span className="font-semibold text-xs">
+                            {option.email}
+                          </span>
+                        </div>
+                      )}
+                      {...form3.getInputProps("second_winner")}
+                    />
+                    <Select
+                      className="min-w-64"
+                      label="Third Place Winner"
+                      placeholder="Select third place"
+                      data={data?.participants?.map((participant) => {
+                        return {
+                          value: participant.sid,
+                          name: participant.name,
+                          email: participant.email,
+                          label: participant.name,
+                        };
+                      })}
+                      renderOption={({ option }) => (
+                        <div className="flex flex-col">
+                          <span>{option.name}</span>
+                          <span className="font-semibold text-xs">
+                            {option.email}
+                          </span>
+                        </div>
+                      )}
+                      {...form3.getInputProps("third_winner")}
+                    />
+                  </div>
+                </form>
+              )}
             </div>
           )}
           {"logistics" in data && data && (

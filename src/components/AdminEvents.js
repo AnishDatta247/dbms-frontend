@@ -254,7 +254,7 @@ const AdminEvents = ({ data, setData }) => {
                 <DateInput
                   mt="md"
                   label="From"
-                  placeholder="Staying from"
+                  placeholder="From"
                   value={from}
                   onChange={setFrom}
                   error={fromError.length !== 0}
@@ -266,7 +266,7 @@ const AdminEvents = ({ data, setData }) => {
                 <DateInput
                   mt="md"
                   label="To"
-                  placeholder="Staying till"
+                  placeholder="Till"
                   value={to}
                   onChange={setTo}
                   error={toError.length !== 0}

@@ -136,7 +136,7 @@ const AdminOrganisers = (props) => {
           );
         }
         toast.success(
-          selectModal === 0 ? "Organiser Updated" : "Organiser Added"
+          selectModal === 0 ? "Organiser Added" : "Organiser Updated"
         );
       })
       .catch((e) => {
