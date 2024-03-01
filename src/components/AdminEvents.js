@@ -45,13 +45,13 @@ const AdminEvents = ({ data, setData }) => {
         value >= 0 ? null : "First Prize is required",
       second_prize: (value, values) =>
         value >= 0
-          ? value < values.first_prize
+          ? values.type !== "competition" || value < values.first_prize
             ? null
             : "Second prize must be less than first"
           : "Second Prize is required",
       third_prize: (value, values) =>
         value >= 0
-          ? value < values.second_prize
+          ? values.type !== "competition" || value < values.second_prize
             ? null
             : "Third price must be less than second"
           : "Third Prize is required",

@@ -125,6 +125,7 @@ const Dashboard = () => {
 
   const saveTab = (tab) => {
     localStorage.setItem("tab", tab);
+    console.log("TAB SAVED" + tab);
     setTab(tab);
   };
 

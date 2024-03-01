@@ -23,21 +23,18 @@ const AdminOrganisers = (props) => {
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
 
-  const [from, setFrom] = useState(null);
-  const [to, setTo] = useState(null);
-  const [fromError, setFromError] = useState("");
-  const [toError, setToError] = useState("");
   const form = useForm({
     initialValues: {
       email: "",
       name: "",
       phone: "",
-      events_sponsered: "",
+      password: "",
     },
     validate: {
-      email: (value) => (value.length > 0 ? null : "Type is required"),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
       name: (value) => (value.length > 0 ? null : "Name is required"),
       phone: (value) => (value.length > 0 ? null : "Phone is required"),
+      password: (value) => (value.length > 5 ? null : "Atleast 6 characters"),
     },
   });
 
@@ -47,8 +44,11 @@ const AdminOrganisers = (props) => {
 
   const onDelete = (oid) => {
     console.log("DELETING: ", oid);
-    console.log("DELETING: ", `${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/`+ oid);
-    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_student/`+ oid, {
+    console.log(
+      "DELETING: ",
+      `${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/` + oid
+    );
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_student/` + oid, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -62,7 +62,6 @@ const AdminOrganisers = (props) => {
       .catch((e) => {
         toast.error(e.message);
       });
-
   };
 
   const onSubmit = (values) => {
@@ -110,7 +109,7 @@ const AdminOrganisers = (props) => {
   return (
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
-        <span className="font-semibold text-3xl">organisers</span>{" "}
+        <span className="font-semibold text-3xl">Organisers</span>{" "}
         <Modal centered opened={opened3} onClose={close3} title="New organiser">
           <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
             <TextInput
@@ -163,17 +162,17 @@ const AdminOrganisers = (props) => {
 
                 <Table.Td>
                   <Modal
-                      centered
-                      title="Sponsored Events"
-                      opened={opened1}
-                      onClose={close1}
-                    >
-                      
-                      {/* iterate on organisr.events_sponsered using loop and print */
-                      
-                        <div>
-                         {/* make a tabe to display  */}
-                          <Table striped highlightOnHover withTableBorder>
+                    centered
+                    title="Sponsored Events"
+                    opened={opened1}
+                    onClose={close1}
+                  >
+                    {
+                      /* iterate on organisr.events_sponsered using loop and print */
+
+                      <div>
+                        {/* make a tabe to display  */}
+                        <Table striped highlightOnHover withTableBorder>
                           <Table.Thead>
                             <Table.Tr>
                               <Table.Th>Event Name</Table.Th>
@@ -181,21 +180,18 @@ const AdminOrganisers = (props) => {
                             </Table.Tr>
                           </Table.Thead>
                           <Table.Tbody>
-                            {organiser.events_sponsored && organiser.events_sponsored.map((event1) => (
-                            <Table.Tr key={event1.eid}>
-                              <Table.Td>{event1.name}</Table.Td>
-                              <Table.Td>{event1.payment_status}</Table.Td>
-                            </Table.Tr>
-                            ))}
+                            {organiser.events_sponsored &&
+                              organiser.events_sponsored.map((event1) => (
+                                <Table.Tr key={event1.eid}>
+                                  <Table.Td>{event1.name}</Table.Td>
+                                  <Table.Td>{event1.payment_status}</Table.Td>
+                                </Table.Tr>
+                              ))}
                           </Table.Tbody>
-                          
                         </Table>
-                        </div>
-                      
-                      
-
-                      }
-                      </Modal>
+                      </div>
+                    }
+                  </Modal>
                   <Info onClick={open1} className="w-4 h-4" />
                 </Table.Td>
 
