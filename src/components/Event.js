@@ -11,7 +11,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
-import { ArrowLeft, IndianRupee } from "lucide-react";
+import { ArrowLeft, Pen, IndianRupee } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +24,18 @@ const Event = (props) => {
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
   const [opened3, { open: open3, close: close3 }] = useDisclosure();
+
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  useEffect(() => {
+    // Update the current date and time every second
+    const intervalId = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    // Cleanup the interval when the component is unmounted
+    return () => clearInterval(intervalId);
+  }, []);
 
   const dateTimeFormatter = (dateTime) => {
     return format(dateTime, "do MMM yyyy, h:mm a");
@@ -272,7 +284,8 @@ const Event = (props) => {
           </div>
           <div className="flex gap-4 mt-4">
             {"registered" in data &&
-              (!data.registered ? (
+              (currentDateTime < new Date(data.end_date_time) &&
+              !data.registered ? (
                 <div>
                   <Modal
                     centered
@@ -302,13 +315,18 @@ const Event = (props) => {
                     Register
                   </button>
                 </div>
+              ) : !data.registered ? (
+                <div className="border px-4 py-2 rounded-md text-neutral-500 font-semibold text-sm">
+                  Event Ended
+                </div>
               ) : (
                 <div className="border px-4 py-2 rounded-md text-neutral-500 font-semibold text-sm">
                   Already Registered
                 </div>
               ))}
             {"volunteered" in data &&
-              (!data.volunteered ? (
+              (currentDateTime < new Date(data.end_date_time) &&
+              !data.volunteered ? (
                 <div>
                   <Modal
                     centered
@@ -359,13 +377,18 @@ const Event = (props) => {
                     Volunteer
                   </button>
                 </div>
+              ) : !data.volunteered ? (
+                <div className=" border px-4 py-2 rounded-md text-neutral-500 font-semibold text-sm">
+                  Event Ended
+                </div>
               ) : (
                 <div className=" border px-4 py-2 rounded-md text-neutral-500 font-semibold text-sm">
                   Already Volunteered
                 </div>
               ))}
             {"sponsored" in data &&
-              (data.sponsored === "no" ? (
+              (currentDateTime < new Date(data.end_date_time) &&
+              data.sponsored === "no" ? (
                 <div>
                   <Modal
                     centered
@@ -400,6 +423,10 @@ const Event = (props) => {
                     Sponsor
                   </button>
                 </div>
+              ) : data.sponsored === "no" ? (
+                <div className="border px-4 py-2 rounded-md text-neutral-500 font-semibold text-sm">
+                  Event Ended
+                </div>
               ) : data.sponsored === "pending" ? (
                 <div className=" border px-4 py-2 rounded-md text-neutral-500 font-semibold text-sm">
                   Sponsorship Request Pending
@@ -431,83 +458,6 @@ const Event = (props) => {
                   {data.first_prize}
                 </span>
               </div>
-            </div>
-          )}
-          {"logistics" in data && data && (
-            <div className="mt-2 flex flex-col gap-2">
-              <span className="font-semibold text-xl">Declare Winners</span>
-              {true && (
-                <form onSubmit={form3.onSubmit((values) => onSubmit(values))}>
-                  <div className="flex flex-col gap-2 lg:flex-row lg:gap-6">
-                    <Select
-                      className="min-w-64"
-                      label="First Place Winner"
-                      placeholder="Select first place"
-                      data={data?.participants?.map((participant) => {
-                        return {
-                          value: participant.sid,
-                          name: participant.name,
-                          email: participant.email,
-                          label: participant.name,
-                        };
-                      })}
-                      renderOption={({ option }) => (
-                        <div className="flex flex-col">
-                          <span>{option.name}</span>
-                          <span className="font-semibold text-xs">
-                            {option.email}
-                          </span>
-                        </div>
-                      )}
-                      {...form3.getInputProps("first_winner")}
-                    />
-                    <Select
-                      className="min-w-64"
-                      label="Second Place Winner"
-                      placeholder="Select second place"
-                      data={data?.participants?.map((participant) => {
-                        return {
-                          value: participant.sid,
-                          name: participant.name,
-                          email: participant.email,
-                          label: participant.name,
-                        };
-                      })}
-                      renderOption={({ option }) => (
-                        <div className="flex flex-col">
-                          <span>{option.name}</span>
-                          <span className="font-semibold text-xs">
-                            {option.email}
-                          </span>
-                        </div>
-                      )}
-                      {...form3.getInputProps("second_winner")}
-                    />
-                    <Select
-                      className="min-w-64"
-                      label="Third Place Winner"
-                      placeholder="Select third place"
-                      data={data?.participants?.map((participant) => {
-                        return {
-                          value: participant.sid,
-                          name: participant.name,
-                          email: participant.email,
-                          label: participant.name,
-                        };
-                      })}
-                      renderOption={({ option }) => (
-                        <div className="flex flex-col">
-                          <span>{option.name}</span>
-                          <span className="font-semibold text-xs">
-                            {option.email}
-                          </span>
-                        </div>
-                      )}
-                      {...form3.getInputProps("third_winner")}
-                    />
-                  </div>
-                </form>
-              )}
             </div>
           )}
           {"logistics" in data && data && (
