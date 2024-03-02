@@ -227,6 +227,12 @@ const Event = (props) => {
     )
       .then((response) => response.json())
       .then((resData) => {
+        setData((prev) => ({
+          ...prev,
+          first_winner: values.first_winner,
+          second_winner: values.second_winner,
+          third_winner: values.third_winner,
+        }));
         toast.success("Winners declared!");
       })
       .catch((e) => toast.error(e.message));
@@ -530,7 +536,7 @@ const Event = (props) => {
               <span className="font-semibold text-xl">Declare Winners</span>
               {true && (
                 <form onSubmit={form3.onSubmit((values) => onSubmit(values))}>
-                  <div className="flex flex-col gap-2 lg:flex-row lg:gap-6">
+                  <div className="flex flex-col gap-2 lg:flex-row lg:gap-6 lg:items-end">
                     <Select
                       className="min-w-64"
                       label="First Place Winner"
@@ -603,9 +609,9 @@ const Event = (props) => {
                     {!data.first_winner && (
                       <button
                         type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg w-fit mt-3 text-sm font-semibold"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg w-fit h-fit mt-3 text-sm font-semibold"
                       >
-                        {data.first_winner ? "Update" : "Declare"}
+                        Declare
                       </button>
                     )}
                   </div>
