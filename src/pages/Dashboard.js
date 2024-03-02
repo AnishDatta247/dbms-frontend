@@ -297,7 +297,7 @@ const Dashboard = () => {
                 toggle();
               }}
             >
-              <BellRing className="w-6 h-6" />
+              <BellRing className="w-5 h-5" />
               <span className="font-semibold text-md">Notifications</span>
             </li>
           )}
