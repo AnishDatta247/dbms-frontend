@@ -213,7 +213,7 @@ const AdminEvents = ({ data, setData }) => {
   return (
     <div className="px-4 py-1 flex flex-col gap-6">
       <div className="flex justify-start gap-4 items-center">
-        <span className="font-semibold text-3xl">Events</span>
+        <span className="font-semibold text-3xl">Admin Events</span>
 
         <Modal centered title="Information" opened={opened1} onClose={close1}>
           {modalData && modalData.info}

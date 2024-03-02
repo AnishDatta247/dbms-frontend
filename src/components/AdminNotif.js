@@ -2,9 +2,7 @@ import { IndianRupee } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-const AdminNotif = () => {
-  const [data, setData] = useState();
-
+const AdminNotif = ({ data, setData }) => {
   useEffect(() => {
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/notifs`, {
       method: "GET",

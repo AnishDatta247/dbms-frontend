@@ -491,7 +491,7 @@ const Event = (props) => {
                 </span>
                 <span className="bg-[#b08d57] px-2 py-1 text-sm rounded-full text-white font-semibold">
                   3rd: <IndianRupee className="inline w-4 h-4 ml-1 mb-0.5" />
-                  {data.first_prize}
+                  {data.third_prize}
                 </span>
               </div>
             </div>

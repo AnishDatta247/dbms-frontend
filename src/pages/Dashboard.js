@@ -23,6 +23,7 @@ import AdminStudents from "../components/AdminStudents";
 import AdminEvents from "../components/AdminEvents";
 import AdminOrganisers from "../components/AdminOrganisers";
 import AdminNotif from "../components/AdminNotif";
+import { TailSpin } from "react-loader-spinner";
 
 const Dashboard = () => {
   const [type, setType] = useState("");
@@ -31,16 +32,27 @@ const Dashboard = () => {
   const [dataViewProfile, setDataViewProfile] = useState();
   const [events, setEvents] = useState();
   const [studentdata, setstudentdata] = useState();
+  const [organiserdata, setorganiserdata] = useState();
+  const [notifData, setNotifData] = useState();
   const [opened, { toggle }] = useDisclosure();
-  const [tab, setTab] = useState(() => {
-    var prevTab = localStorage.getItem("tab");
-    if (!prevTab) return 0;
-    else return parseInt(prevTab);
-  });
+  const [tab, setTab] = useState();
   const [eid, setEid] = useState(() => {
     var eventId = localStorage.getItem("eid");
     return eventId;
   });
+
+  const [loading, setLoading] = useState({
+    fetch1: false,
+    fetch2: false,
+    fetch3: false,
+    fetch4: false,
+    fetch5: false,
+  });
+
+  useEffect(() => {
+    if (type === "admin") saveTab(5);
+    else saveTab(0);
+  }, [type]);
 
   // fetch profile
   useEffect(() => {
@@ -64,14 +76,19 @@ const Dashboard = () => {
           setType("admin");
           setTab(5);
         }
+        setLoading((prev) => ({ ...prev, fetch1: true }));
       })
       .catch((e) => {
         toast.error(e.message);
       });
   }, []);
 
+  // fetch student data for admin
   useEffect(() => {
-    if (type != "admin") return;
+    if (type != "admin") {
+      setLoading((prev) => ({ ...prev, fetch2: true }));
+      return;
+    }
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/all_students`, {
       method: "GET",
       headers: {
@@ -84,13 +101,15 @@ const Dashboard = () => {
         setstudentdata(data);
         setTab(5);
         localStorage.setItem("tab", 5);
+        setLoading((prev) => ({ ...prev, fetch2: true }));
       });
   }, [type]);
 
-  const [organiserdata, setorganiserdata] = useState();
-
   useEffect(() => {
-    if (type != "admin") return;
+    if (type != "admin") {
+      setLoading((prev) => ({ ...prev, fetch3: true }));
+      return;
+    }
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/all_organisers`, {
       method: "GET",
       headers: {
@@ -101,9 +120,11 @@ const Dashboard = () => {
       .then((response) => response.json())
       .then((data) => {
         setorganiserdata(data);
+        setLoading((prev) => ({ ...prev, fetch3: true }));
       });
   }, [type]);
 
+  // fetch events
   useEffect(() => {
     if (!type) return;
     var base_url = process.env.REACT_APP_FETCH_URL;
@@ -120,13 +141,32 @@ const Dashboard = () => {
       .then((data) => {
         console.log(data);
         setEvents(data);
+        setLoading((prev) => ({ ...prev, fetch4: true }));
       })
       .catch((e) => {
         toast.error(e.message);
       });
   }, [type]);
 
-  console.log("user type is " + type);
+  // fetch notifications for admin
+  useEffect(() => {
+    if (type !== "admin") {
+      setLoading((prev) => ({ ...prev, fetch5: true }));
+      return;
+    }
+    fetch(`${process.env.REACT_APP_FETCH_URL}/admin/notifs`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((resData) => {
+        setNotifData(resData);
+        setLoading((prev) => ({ ...prev, fetch5: true }));
+      });
+  }, [type]);
 
   const saveTab = (tab) => {
     localStorage.setItem("tab", tab);
@@ -170,142 +210,172 @@ const Dashboard = () => {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        <ul className="mt-1">
-          {type !== "admin" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 0 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(0);
-                toggle();
-              }}
-            >
-              <TicketCheck className="w-6 h-6" />
-              <span className="font-semibold text-md">Events</span>
-            </li>
-          )}
-          {type !== "admin" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 1 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(1);
-                toggle();
-              }}
-            >
-              <CalendarFold className="w-6 h-6" />
-              <span className="font-semibold text-md">Schedule</span>
-            </li>
-          )}
-          {studentType === "external" && type === "student" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 2 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(2);
-                toggle();
-              }}
-            >
-              <BedDouble className="w-6 h-6" />
-              <span className="font-semibold text-md">
-                Food and Accomodation
-              </span>
-            </li>
-          )}
-          {type !== "admin" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 3 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(3);
-                toggle();
-              }}
-            >
-              <CircleUserRound className="w-6 h-6" />
-              <span className="font-semibold text-md">Profile</span>
-            </li>
-          )}
+        {loading.fetch1 &&
+        loading.fetch2 &&
+        loading.fetch3 &&
+        loading.fetch4 &&
+        loading.fetch5 ? (
+          <ul className="mt-1">
+            {type !== "admin" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 0 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(0);
+                  toggle();
+                }}
+              >
+                <TicketCheck className="w-6 h-6" />
+                <span className="font-semibold text-md">Events</span>
+              </li>
+            )}
+            {type !== "admin" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 1 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(1);
+                  toggle();
+                }}
+              >
+                <CalendarFold className="w-6 h-6" />
+                <span className="font-semibold text-md">Schedule</span>
+              </li>
+            )}
+            {studentType === "external" && type === "student" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 2 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(2);
+                  toggle();
+                }}
+              >
+                <BedDouble className="w-6 h-6" />
+                <span className="font-semibold text-md">
+                  Food and Accomodation
+                </span>
+              </li>
+            )}
+            {type !== "admin" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 3 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(3);
+                  toggle();
+                }}
+              >
+                <CircleUserRound className="w-6 h-6" />
+                <span className="font-semibold text-md">Profile</span>
+              </li>
+            )}
 
-          {/* admin tabs */}
-          {type == "admin" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 5 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(5);
-                toggle();
-              }}
-            >
-              <TicketCheck className="w-6 h-6" />
-              <span className="font-semibold text-md">Events</span>
-            </li>
-          )}
-          {type == "admin" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 6 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(6);
-                toggle();
-              }}
-            >
-              <BedDouble className="w-6 h-6" />
-              <span className="font-semibold text-md">Accomodations</span>
-            </li>
-          )}
-          {type == "admin" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 7 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(7);
-                toggle();
-              }}
-            >
-              <CircleUserRound className="w-6 h-6" />
-              <span className="font-semibold text-md">Students</span>
-            </li>
-          )}
-          {type == "admin" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 8 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(8);
-                toggle();
-              }}
-            >
-              <User className="w-6 h-6" />
-              <span className="font-semibold text-md">Organisers</span>
-            </li>
-          )}
-          {type == "admin" && (
-            <li
-              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                tab === 10 ? "bg-blue-200 text-blue-600" : ""
-              }`}
-              onClick={() => {
-                saveTab(10);
-                toggle();
-              }}
-            >
-              <BellRing className="w-5 h-5" />
-              <span className="font-semibold text-md">Notifications</span>
-            </li>
-          )}
-        </ul>
+            {/* admin tabs */}
+            {type == "admin" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 5 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(5);
+                  toggle();
+                }}
+              >
+                <TicketCheck className="w-6 h-6" />
+                <span className="font-semibold text-md">Events</span>
+              </li>
+            )}
+            {type == "admin" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 6 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(6);
+                  toggle();
+                }}
+              >
+                <BedDouble className="w-6 h-6" />
+                <span className="font-semibold text-md">Accomodations</span>
+              </li>
+            )}
+            {type == "admin" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 7 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(7);
+                  toggle();
+                }}
+              >
+                <CircleUserRound className="w-6 h-6" />
+                <span className="font-semibold text-md">Students</span>
+              </li>
+            )}
+            {type == "admin" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 8 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(8);
+                  toggle();
+                }}
+              >
+                <User className="w-6 h-6" />
+                <span className="font-semibold text-md">Organisers</span>
+              </li>
+            )}
+            {type == "admin" && (
+              <li
+                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                  tab === 10 ? "bg-blue-200 text-blue-600" : ""
+                }`}
+                onClick={() => {
+                  saveTab(10);
+                  toggle();
+                }}
+              >
+                <BellRing className="w-5 h-5" />
+                <span className="font-semibold text-md">Notifications</span>
+              </li>
+            )}
+          </ul>
+        ) : (
+          <div className="w-full h-full flex justify-center">
+            <TailSpin
+              height={60}
+              width={60}
+              color="black"
+              ariaLabel="loading"
+              className=""
+            />
+          </div>
+        )}
       </AppShell.Navbar>
 
       <AppShell.Main>
-        {tab === 0 ? (
+        {!loading.fetch1 ||
+        !loading.fetch2 ||
+        !loading.fetch3 ||
+        !loading.fetch4 ||
+        !loading.fetch5 ? (
+          <div className="w-full h-full flex justify-center">
+            <TailSpin
+              height={60}
+              width={60}
+              color="black"
+              ariaLabel="loading"
+              className=""
+            />
+          </div>
+        ) : tab === 0 ? (
           <Events setTab={setTab} setEid={setEid} type={type} events={events} />
         ) : tab === 1 ? (
           <Schedule events={events} type={type} />
@@ -337,7 +407,7 @@ const Dashboard = () => {
             data={dataViewProfile}
           />
         ) : tab === 10 ? (
-          <AdminNotif />
+          <AdminNotif data={notifData} setData={setNotifData} />
         ) : null}
       </AppShell.Main>
     </AppShell>
