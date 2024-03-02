@@ -10,9 +10,10 @@ import {
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { ArrowLeft, Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Profile = ({ type, data, backButton, setTab }) => {
@@ -20,6 +21,9 @@ const Profile = ({ type, data, backButton, setTab }) => {
   const [search, setSearch] = useState("");
   const [modalData, setModalData] = useState();
   const [selectModal, setSelectModal] = useState();
+  const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!data) return;
@@ -30,6 +34,7 @@ const Profile = ({ type, data, backButton, setTab }) => {
 
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
+  const [opened3, { open: open3, close: close3 }] = useDisclosure();
 
   const form_student = useForm({
     initialValues: {
@@ -147,6 +152,52 @@ const Profile = ({ type, data, backButton, setTab }) => {
         console.log(e);
       });
     selectModal === 0 ? close1() : close2();
+  };
+
+  const onDelete = () => {
+    let status;
+    const url =
+      type === "student"
+        ? `${process.env.REACT_APP_FETCH_URL}/student/delete_student`
+        : `${process.env.REACT_APP_FETCH_URL}/organiser/delete_organiser`;
+    console.log(url);
+    fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+      body: JSON.stringify({
+        password: password,
+      }),
+    })
+      .then((response) => {
+        status = response.status;
+        return response.json();
+      })
+      .then((resData) => {
+        console.log(resData);
+        close3();
+
+        if (status !== 200) {
+          toast.error(resData.message);
+          setPassword("");
+          return;
+        }
+
+        toast.success(
+          type === "student"
+            ? "Student Profile Deleted"
+            : "Organiser Profile Deleted"
+        );
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("tab");
+        navigate("/login");
+      })
+      .catch((e) => {
+        toast.error(e.message);
+        console.log(e);
+      });
   };
 
   return (
@@ -372,39 +423,64 @@ const Profile = ({ type, data, backButton, setTab }) => {
         </div>
       )}
 
-      <div className="flex gap-4 mt-4 justify-center w-full">
-        <button
-          onClick={() => {
-            type == "organiser" ? setSelectModal(1) : setSelectModal(0);
-            type == "organiser"
-              ? form_organiser.setValues({
-                  email: currentData.email,
-                  name: currentData.name,
-                  phone: currentData.phone,
-                })
-              : form_student.setValues({
-                  college: currentData.college,
-                  department: currentData.department,
-                  email: currentData.email,
-                  name: currentData.name,
-                  phone: currentData.phone,
-                  roll_number: currentData.roll_number,
-                  type: currentData.type,
-                  year: currentData.year.toString(),
-                  // print
-                });
-            console.log("currentData", currentData);
-            setModalData(currentData);
-            type == "organiser" ? open2() : open1();
-          }}
-          className="bg-blue-500 w-fit px-4 py-2 rounded-md text-white font-semibold text-sm"
-        >
-          Update Profile
-        </button>
-        <button className="border border-red-500 text-red-500 text-sm font-semibold px-4 py-2 rounded-md">
-          Delete Profile
-        </button>
-      </div>
+      {!backButton && (
+        <div className="flex gap-4 mt-4 justify-center w-full">
+          <button
+            onClick={() => {
+              type == "organiser" ? setSelectModal(1) : setSelectModal(0);
+              type == "organiser"
+                ? form_organiser.setValues({
+                    email: currentData.email,
+                    name: currentData.name,
+                    phone: currentData.phone,
+                  })
+                : form_student.setValues({
+                    college: currentData.college,
+                    department: currentData.department,
+                    email: currentData.email,
+                    name: currentData.name,
+                    phone: currentData.phone,
+                    roll_number: currentData.roll_number,
+                    type: currentData.type,
+                    year: currentData.year.toString(),
+                    // print
+                  });
+              console.log("currentData", currentData);
+              setModalData(currentData);
+              type == "organiser" ? open2() : open1();
+            }}
+            className="bg-blue-500 w-fit px-4 py-2 rounded-md text-white font-semibold text-sm"
+          >
+            Update Profile
+          </button>
+          <button
+            onClick={open3}
+            className="border border-red-500 text-red-500 text-sm font-semibold px-4 py-2 rounded-md"
+          >
+            Delete Profile
+          </button>
+          <Modal
+            centered
+            opened={opened3}
+            onClose={close3}
+            title="Account Deletion"
+          >
+            <TextInput
+              label="Password"
+              placeholder="Enter password to confirm account deletion"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              onClick={onDelete}
+              className="w-full bg-red-500 text-white font-semibold px-4 py-2 rounded-md mt-4 text-sm"
+            >
+              Delete Account
+            </button>
+          </Modal>
+        </div>
+      )}
     </div>
   );
 };

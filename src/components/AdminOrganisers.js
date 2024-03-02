@@ -214,7 +214,7 @@ const AdminOrganisers = (props) => {
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Event Name</Table.Th>
-                    <Table.Th>Payment Status</Table.Th>
+                    <Table.Th>Sponsor Status</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -222,7 +222,7 @@ const AdminOrganisers = (props) => {
                     modalData.events_sponsored.map((event1) => (
                       <Table.Tr key={event1.eid}>
                         <Table.Td>{event1.name}</Table.Td>
-                        <Table.Td>{event1.payment_status}</Table.Td>
+                        <Table.Td>{event1.sponsor_status}</Table.Td>
                       </Table.Tr>
                     ))}
                 </Table.Tbody>
@@ -251,7 +251,13 @@ const AdminOrganisers = (props) => {
                 <Table.Td>{organiser.phone}</Table.Td>
 
                 <Table.Td>
-                  <Info onClick={open1} className="w-4 h-4" />
+                  <Info
+                    onClick={() => {
+                      setModalData(organiser);
+                      open1();
+                    }}
+                    className="w-4 h-4"
+                  />
                 </Table.Td>
 
                 <Table.Td>

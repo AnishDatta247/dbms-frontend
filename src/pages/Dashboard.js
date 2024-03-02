@@ -80,7 +80,7 @@ const Dashboard = () => {
           setType("admin");
           setTab(5);
         }
-        console.log(data)
+        console.log(data);
         setLoading((prev) => ({ ...prev, fetch1: true }));
       })
       .catch((e) => {
@@ -302,20 +302,6 @@ const Dashboard = () => {
             {type == "admin" && (
               <li
                 className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
-                  tab === 6 ? "bg-blue-200 text-blue-600" : ""
-                }`}
-                onClick={() => {
-                  saveTab(6);
-                  toggle();
-                }}
-              >
-                <BedDouble className="w-6 h-6" />
-                <span className="font-semibold text-md">Accomodations</span>
-              </li>
-            )}
-            {type == "admin" && (
-              <li
-                className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
                   tab === 7 ? "bg-blue-200 text-blue-600" : ""
                 }`}
                 onClick={() => {
@@ -403,8 +389,6 @@ const Dashboard = () => {
           />
         ) : tab === 5 ? (
           <AdminEvents setTab={setTab} data={events} setData={setEvents} />
-        ) : tab === 6 ? (
-          <AdminAccodomations />
         ) : tab === 7 ? (
           <AdminStudents setTab={setTab} studentdata={studentdata} />
         ) : tab === 8 ? (

@@ -1,13 +1,16 @@
 import { useForm } from "@mantine/form";
-import { TextInput, Button } from "@mantine/core";
+import { TextInput, Button, Modal } from "@mantine/core";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import { toast } from "sonner";
 import { useState } from "react";
 import { TailSpin } from "react-loader-spinner";
+import { useDisclosure } from "@mantine/hooks";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
+
+  const [opened, { open, close }] = useDisclosure();
 
   const navigate = useNavigate();
 
@@ -48,6 +51,43 @@ const Login = () => {
       password: (value) => (value.length > 0 ? null : "Password is required"),
     },
   });
+
+  const form2 = useForm({
+    initialValues: {
+      email: "",
+    },
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+    },
+  });
+
+  const onSubmit2 = (values) => {
+    let status;
+    fetch(`${process.env.REACT_APP_FETCH_URL}/forgot_password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form2.values),
+    })
+      .then((res) => {
+        status = res.status;
+        return res.json();
+      })
+      .then((resData) => {
+        if (status !== 200) {
+          toast.error(resData.message);
+          form2.reset();
+          return;
+        }
+        toast.success(resData.message);
+        form2.reset();
+        close();
+      })
+      .catch((e) => {
+        toast.error(e.message);
+      });
+  };
 
   if (localStorage.getItem("access_token")) {
     return <Navigate to="/dashboard" replace />;
@@ -95,12 +135,37 @@ const Login = () => {
             Submit
           </button>
         </form>
-        <Link
-          to="/signup"
-          className="text-sm hover:underline text-center w-fit m-auto"
-        >
-          Do not have an account?
-        </Link>
+        <div className="flex justify-between w-full">
+          <Modal
+            centered
+            opened={opened}
+            onClose={close}
+            title="Forgot Password"
+          >
+            <form onSubmit={form2.onSubmit((values) => onSubmit2(values))}>
+              <TextInput
+                label="Email"
+                placeholder="Send new password to..."
+                {...form2.getInputProps("email")}
+              />
+              <button className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6">
+                Send Email
+              </button>
+            </form>
+          </Modal>
+          <Link
+            onClick={open}
+            className="text-sm hover:underline text-center w-fit"
+          >
+            Forgot Password?
+          </Link>
+          <Link
+            to="/signup"
+            className="text-sm hover:underline text-center w-fit"
+          >
+            Do not have an account?
+          </Link>
+        </div>
       </div>
     </div>
   );
