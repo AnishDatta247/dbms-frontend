@@ -396,7 +396,6 @@ const Profile = ({ type, data, backButton, setTab }) => {
         }}
         className="flex gap-1 items-center bg-blue-500 w-fit m-auto px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
       >
-        <Plus className="w-5 h-5" />
         <span>Update Profile</span>
       </button>
     </div>
