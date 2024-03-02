@@ -5,6 +5,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { format } from "date-fns";
 import { Info } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Accomodation = () => {
   const input = {
@@ -27,9 +28,9 @@ const Accomodation = () => {
     return format(dateTime, "dd MMM yyyy");
   };
 
-  const dateString = (dateTime) => {
-    return format(dateTime, "yyyy-MM-dd");
-  };
+  // const dateString = (dateTime) => {
+  //   return format(dateTime, "yyyy-MM-dd");
+  // };
 
   const paymentCalc = () => {
     let payment = 0;
@@ -46,8 +47,46 @@ const Accomodation = () => {
     return payment;
   };
 
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_FETCH_URL}/get_accomodation`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access_token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((resData) => {
+        setData(resData);
+        console.log(resData)
+      })
+      .catch((e) => {
+        toast.error(e.message);
+      });
+  }, [])
+
   const onSubmit = (values) => {
     form.validate();
+    if (Object.keys(form.errors).length === 0 && from && to && from <= to && from >= new Date()) {
+
+      // fetch(`${process.env.REACT_APP_FETCH_URL}/` + sid, {
+      //   method: "DELETE",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: "Bearer " + localStorage.getItem("access_token"),
+      //   },
+      // })
+      //   .then((response) => response.json())
+      //   .then(() => {
+      //     setData((prev) => prev.filter((student) => student.sid !== sid));
+      //     close2();
+      //     toast.success("Student Deleted");
+      //   })
+      //   .catch((e) => {
+      //     toast.error(e.message);
+      //   });
+
+    }
     if (!from) {
       setFromError("From date required");
     } else if (from < new Date()) {
@@ -65,7 +104,10 @@ const Accomodation = () => {
       setFromError("");
       setToError("");
     }
-    
+    if (fromError.length === 0 && toError.length === 0) {
+      setFromError("");
+      setToError("");
+    }
   };
 
   const form = useForm({
