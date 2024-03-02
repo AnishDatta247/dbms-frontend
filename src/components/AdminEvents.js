@@ -91,18 +91,16 @@ const AdminEvents = ({ data, setData }) => {
   const onSubmit = (values) => {
     form.validate();
     if (
-      Object.keys(form.errors).length == 0 &&
+      Object.keys(form.errors).length === 0 &&
       from &&
       to &&
       from <= to &&
       from >= new Date()
     ) {
-      //   add record
-      // const timedel = new Date();
-      // timedel.setDate(0, 0, 0, 0);
-      // timedel.setHours(0, 0, 0, 0);
-      // timedel.setHours(6);
-      // timedel.setMinutes(30);
+      from.setHours(from.getHours() - 5);
+      from.setMinutes(from.getMinutes() - 30);
+      to.setHours(to.getHours() - 5);
+      to.setMinutes(to.getMinutes() - 30);
       const fetchUrl =
         selectModal === 0
           ? `${process.env.REACT_APP_FETCH_URL}/admin/add_event`
@@ -134,6 +132,10 @@ const AdminEvents = ({ data, setData }) => {
           form.reset();
           setFrom(null);
           setTo(null);
+          from.setHours(from.getHours() + 5);
+          from.setMinutes(from.getMinutes() + 30);
+          to.setHours(to.getHours() + 5);
+          to.setMinutes(to.getMinutes() + 30);
           if (selectModal === 0)
             setData((prev) => [
               ...prev,
@@ -141,8 +143,8 @@ const AdminEvents = ({ data, setData }) => {
                 eid: resData.event_id,
                 name: values.name,
                 type: values.type,
-                start_date_time: from,
-                end_date_time: to,
+                start_date_time: dateString(from),
+                end_date_time: dateString(to),
                 location: values.location,
                 first_prize:
                   values.type === "competition" ? values.first_prize : null,
@@ -265,33 +267,29 @@ const AdminEvents = ({ data, setData }) => {
             />
 
             <div className="flex gap-4 w-full">
-              <DatesProvider
-                settings={{ timezone: "Asia/Calcutta" }}
-              >
-                <div className="w-full">
-                  <DateTimePicker
-                    mt="md"
-                    label="From"
-                    placeholder="From"
-                    value={from}
-                    onChange={setFrom}
-                    error={fromError.length !== 0}
-                  />
-                  <span className="text-xs text-red-500">{fromError}</span>
-                </div>
+              <div className="w-full">
+                <DateTimePicker
+                  mt="md"
+                  label="From"
+                  placeholder="From"
+                  value={from}
+                  onChange={setFrom}
+                  error={fromError.length !== 0}
+                />
+                <span className="text-xs text-red-500">{fromError}</span>
+              </div>
 
-                <div className="w-full">
-                  <DateTimePicker
-                    mt="md"
-                    label="To"
-                    placeholder="Till"
-                    value={to}
-                    onChange={setTo}
-                    error={toError.length !== 0}
-                  />
-                  <span className="text-xs text-red-500">{toError}</span>
-                </div>
-              </DatesProvider>
+              <div className="w-full">
+                <DateTimePicker
+                  mt="md"
+                  label="To"
+                  placeholder="Till"
+                  value={to}
+                  onChange={setTo}
+                  error={toError.length !== 0}
+                />
+                <span className="text-xs text-red-500">{toError}</span>
+              </div>
             </div>
 
             <TextInput

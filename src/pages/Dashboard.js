@@ -80,6 +80,7 @@ const Dashboard = () => {
           setType("admin");
           setTab(5);
         }
+        console.log(data)
         setLoading((prev) => ({ ...prev, fetch1: true }));
       })
       .catch((e) => {

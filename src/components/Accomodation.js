@@ -28,9 +28,9 @@ const Accomodation = () => {
     return format(dateTime, "dd MMM yyyy");
   };
 
-  // const dateString = (dateTime) => {
-  //   return format(dateTime, "yyyy-MM-dd");
-  // };
+  const dateString = (dateTime) => {
+    return format(dateTime, "yyyy-MM-dd");
+  };
 
   const paymentCalc = () => {
     let payment = 0;
@@ -58,51 +58,69 @@ const Accomodation = () => {
       .then((response) => response.json())
       .then((resData) => {
         setData(resData);
-        console.log(resData)
+        console.log(resData);
       })
       .catch((e) => {
         toast.error(e.message);
       });
-  }, [])
+  }, []);
 
   const onSubmit = (values) => {
     form.validate();
-    if (Object.keys(form.errors).length === 0 && from && to && from <= to && from >= new Date()) {
-
-      // fetch(`${process.env.REACT_APP_FETCH_URL}/` + sid, {
-      //   method: "DELETE",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: "Bearer " + localStorage.getItem("access_token"),
-      //   },
-      // })
-      //   .then((response) => response.json())
-      //   .then(() => {
-      //     setData((prev) => prev.filter((student) => student.sid !== sid));
-      //     close2();
-      //     toast.success("Student Deleted");
-      //   })
-      //   .catch((e) => {
-      //     toast.error(e.message);
-      //   });
-
+    if (
+      Object.keys(form.errors).length === 0 &&
+      from &&
+      to &&
+      from <= to &&
+      from >= new Date()
+    ) {
+      console.log(`${process.env.REACT_APP_FETCH_URL}/book_accomodation`);
+      fetch(`${process.env.REACT_APP_FETCH_URL}/book_accomodation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access_token"),
+        },
+        body: JSON.stringify({
+          location: values.location,
+          from: dateString(from),
+          to: dateString(to),
+          food_type: values.food_type,
+          payment: payment,
+        }),
+      })
+        .then((response) => response.json())
+        .then((resData) => {
+          setData({
+            location: values.location,
+            from: from,
+            to: to,
+            food_type: values.food_type,
+            payment_amount: payment,
+          });
+          console.log(resData);
+          toast.success("Accomodation booked successfully");
+        })
+        .catch((e) => {
+          toast.error(e.message);
+        });
     }
     if (!from) {
       setFromError("From date required");
-    } else if (from < new Date()) {
-      setFromError("From date is in the past");
+      return;
     } else setFromError("");
     if (!to) {
       setToError("To date required");
-    } else if (to < from) {
-      setToError("To date must be after from");
+      return;
+    } else if (from > to) {
+      setToError("To date should be after than from date");
+      return;
+    } else if (from < new Date()) {
+      setFromError("From date should be after current date");
+      return;
     } else setToError("");
     if (Object.keys(form.errors).length > 0) {
       return;
-    }
-    if (from && to) {
-      setFromError("");
-      setToError("");
     }
     if (fromError.length === 0 && toError.length === 0) {
       setFromError("");
@@ -122,11 +140,11 @@ const Accomodation = () => {
     },
   });
 
-  // useEffect(() => {
-  //   if (form.values.from.length > 0 && form.values.to.length > 0) {
-  //     setPayment(paymentCalc(data));
-  //   }
-  // }, [form.values.from, form.values.to]);
+  useEffect(() => {
+    if (from && to && from <= to) {
+      setPayment(paymentCalc());
+    }
+  }, [form.values, from, to]);
 
   return (
     <div className="px-4 py-1">
@@ -233,7 +251,7 @@ const Accomodation = () => {
           <button
             className="mt-4 w-fit bg-blue-500 px-4 py-2 rounded-md text-white
             font-semibold text-sm"
-            onClick={onSubmit}
+            type="submit"
           >
             Confirm
           </button>

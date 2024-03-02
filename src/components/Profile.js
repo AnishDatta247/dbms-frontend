@@ -16,14 +16,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const Profile = ({ type, data, backButton, setTab }) => {
-
   const [currentData, setCurrentData] = useState();
   const [search, setSearch] = useState("");
   const [modalData, setModalData] = useState();
   const [selectModal, setSelectModal] = useState();
 
   useEffect(() => {
-
     if (!data) return;
     setCurrentData(data);
   }, [search, data]);
@@ -51,7 +49,7 @@ const Profile = ({ type, data, backButton, setTab }) => {
         email: /^\S+@\S+$/.test(values.email) ? null : "Invalid email",
         name: values.name.trim().length > 0 ? null : "Name is required",
         password:
-          selectModal === 0 || values.password.length > 5
+          values.password.length === 0 || values.password.length > 5
             ? null
             : "Atleast 6 characters",
         roll_number:
@@ -88,7 +86,7 @@ const Profile = ({ type, data, backButton, setTab }) => {
             : "Invalid Phone Number"
           : "Phone number is required",
       password: (value) =>
-        selectModal === 1 || value.length > 5 ? null : "Atleast 6 characters",
+        value.length === 0 || value.length > 5 ? null : "Atleast 6 characters",
     },
   });
 
@@ -108,24 +106,24 @@ const Profile = ({ type, data, backButton, setTab }) => {
       body: JSON.stringify(
         selectModal === 0
           ? {
-            sid: modalData.sid,
-            email: values.email,
-            name: values.name,
-            roll_number: values.roll_number,
-            phone: values.phone,
-            college: values.college,
-            department: values.department,
-            year: values.year,
-            type: values.type,
-            password: values.password,
-          }
+              sid: modalData.sid,
+              email: values.email,
+              name: values.name,
+              roll_number: values.roll_number,
+              phone: values.phone,
+              college: values.college,
+              department: values.department,
+              year: values.year,
+              type: values.type,
+              password: values.password,
+            }
           : {
-            oid: modalData.oid,
-            email: values.email,
-            name: values.name,
-            phone: values.phone,
-            password: values.password,
-          }
+              oid: modalData.oid,
+              email: values.email,
+              name: values.name,
+              phone: values.phone,
+              password: values.password,
+            }
       ),
     })
       .then((response) => response.json())
@@ -134,16 +132,15 @@ const Profile = ({ type, data, backButton, setTab }) => {
         close1();
         selectModal == 0 ? form_student.reset() : form_organiser.reset();
         if (selectModal === 0) {
-          setCurrentData((prev) =>
-            ({...prev, ...values})
-          );
+          setCurrentData((prev) => ({ ...prev, ...values }));
+        } else {
+          setCurrentData((prev) => ({ ...prev, ...values }));
         }
-        else {
-          setCurrentData((prev) =>
-            ({...prev, ...values})
-          );
-        }
-        toast.success(selectModal === 0 ? "Student Profile Updated" : "Organiser Profile Updated");
+        toast.success(
+          selectModal === 0
+            ? "Student Profile Updated"
+            : "Organiser Profile Updated"
+        );
       })
       .catch((e) => {
         toast.error(e.message);
@@ -174,9 +171,15 @@ const Profile = ({ type, data, backButton, setTab }) => {
               centered
               opened={opened2}
               onClose={close2}
-              title={selectModal === 0 ? "Update Student Profile" : "Update Organiser Profile"}
+              title={
+                selectModal === 0
+                  ? "Update Student Profile"
+                  : "Update Organiser Profile"
+              }
             >
-              <form onSubmit={form_organiser.onSubmit((values) => onSubmit(values))}>
+              <form
+                onSubmit={form_organiser.onSubmit((values) => onSubmit(values))}
+              >
                 <TextInput
                   label="Email"
                   disabled
@@ -197,6 +200,7 @@ const Profile = ({ type, data, backButton, setTab }) => {
                 <TextInput
                   label="Password"
                   placeholder="Password"
+                  type="password"
                   {...form_organiser.getInputProps("password")}
                 />
                 <button
@@ -211,7 +215,11 @@ const Profile = ({ type, data, backButton, setTab }) => {
               centered
               opened={opened1}
               onClose={close1}
-              title={selectModal === 0 ? "Update Student Profile" : "Update Organiser Profile"}
+              title={
+                selectModal === 0
+                  ? "Update Student Profile"
+                  : "Update Organiser Profile"
+              }
             >
               <form
                 className="gap-2 flex flex-col"
@@ -234,8 +242,6 @@ const Profile = ({ type, data, backButton, setTab }) => {
                   type="password"
                   {...form_student.getInputProps("password")}
                 />
-
-
 
                 <div className="flex gap-4">
                   <TextInput
@@ -366,40 +372,40 @@ const Profile = ({ type, data, backButton, setTab }) => {
         </div>
       )}
 
-      <button
-
-        onClick={() => {
-          type == "organiser" ? setSelectModal(1) : setSelectModal(0);
-          type == "organiser" ?
-            form_organiser.setValues({
-              email: currentData.email,
-              name: currentData.name,
-              phone: currentData.phone,
-            })
-            :
-            form_student.setValues({
-              college: currentData.college,
-              department: currentData.department,
-              email: currentData.email,
-              name: currentData.name,
-              phone: currentData.phone,
-              roll_number: currentData.roll_number,
-              type: currentData.type,
-              year: currentData.year.toString(),
-              // print 
-            })
+      <div className="flex gap-4 mt-4 justify-center w-full">
+        <button
+          onClick={() => {
+            type == "organiser" ? setSelectModal(1) : setSelectModal(0);
+            type == "organiser"
+              ? form_organiser.setValues({
+                  email: currentData.email,
+                  name: currentData.name,
+                  phone: currentData.phone,
+                })
+              : form_student.setValues({
+                  college: currentData.college,
+                  department: currentData.department,
+                  email: currentData.email,
+                  name: currentData.name,
+                  phone: currentData.phone,
+                  roll_number: currentData.roll_number,
+                  type: currentData.type,
+                  year: currentData.year.toString(),
+                  // print
+                });
             console.log("currentData", currentData);
-            ;
-
-          setModalData(currentData);
-          type == "organiser" ? open2() : open1();
-        }}
-        className="flex gap-1 items-center bg-blue-500 w-fit m-auto px-4 py-2 rounded-md text-white font-semibold text-sm -mb-1"
-      >
-        <span>Update Profile</span>
-      </button>
+            setModalData(currentData);
+            type == "organiser" ? open2() : open1();
+          }}
+          className="bg-blue-500 w-fit px-4 py-2 rounded-md text-white font-semibold text-sm"
+        >
+          Update Profile
+        </button>
+        <button className="border border-red-500 text-red-500 text-sm font-semibold px-4 py-2 rounded-md">
+          Delete Profile
+        </button>
+      </div>
     </div>
-
   );
 };
 
