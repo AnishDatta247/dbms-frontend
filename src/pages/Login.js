@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import { toast } from "sonner";
 import { useState } from "react";
+import { TailSpin } from "react-loader-spinner";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -76,9 +77,21 @@ const Login = () => {
           />
           <button
             type="submit"
-            // disabled={loading}
-            className="bg-blue-500 px-4 py-2 rounded-md w-full text-white font-semibold text-sm mt-6"
+            disabled={loading}
+            className={
+              loading
+                ? "flex flex-row gap-4 justify-center bg-slate-400 text-white px-4 py-2 rounded-md w-full mt-6 text-sm font-semibold cursor-not-allowed"
+                : "bg-blue-500 px-4 py-2 rounded-md w-full text-white font-semibold text-sm mt-6"
+            }
           >
+            {loading && (
+              <TailSpin
+                height={20}
+                width={20}
+                color="white"
+                ariaLabel="loading"
+              />
+            )}
             Submit
           </button>
         </form>

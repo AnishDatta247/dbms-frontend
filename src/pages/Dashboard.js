@@ -3,6 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import Logo from "../components/Logo";
 import {
   BedDouble,
+  BellRing,
   CalendarFold,
   CircleUserRound,
   TicketCheck,
@@ -21,6 +22,7 @@ import AdminAccodomations from "../components/AdminAccomodations";
 import AdminStudents from "../components/AdminStudents";
 import AdminEvents from "../components/AdminEvents";
 import AdminOrganisers from "../components/AdminOrganisers";
+import AdminNotif from "../components/AdminNotif";
 
 const Dashboard = () => {
   const [type, setType] = useState("");
@@ -285,6 +287,20 @@ const Dashboard = () => {
               <span className="font-semibold text-md">Organisers</span>
             </li>
           )}
+          {type == "admin" && (
+            <li
+              className={`flex gap-4 items-center mb-8 px-4 py-2 rounded-full cursor-pointer duration-300 ${
+                tab === 10 ? "bg-blue-200 text-blue-600" : ""
+              }`}
+              onClick={() => {
+                saveTab(10);
+                toggle();
+              }}
+            >
+              <BellRing className="w-6 h-6" />
+              <span className="font-semibold text-md">Notifications</span>
+            </li>
+          )}
         </ul>
       </AppShell.Navbar>
 
@@ -320,6 +336,8 @@ const Dashboard = () => {
             type="student"
             data={dataViewProfile}
           />
+        ) : tab === 10 ? (
+          <AdminNotif />
         ) : null}
       </AppShell.Main>
     </AppShell>

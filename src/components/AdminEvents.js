@@ -8,13 +8,14 @@ import {
   Textarea,
   Tooltip,
 } from "@mantine/core";
-import { DateInput, DateTimePicker } from "@mantine/dates";
+import { DateInput, DateTimePicker, DatesProvider } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { format, set } from "date-fns";
 import { Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import "dayjs/locale/en-in";
 
 const AdminEvents = ({ data, setData }) => {
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
@@ -97,11 +98,11 @@ const AdminEvents = ({ data, setData }) => {
       from >= new Date()
     ) {
       //   add record
-      const timedel = new Date();
-      timedel.setDate(0, 0, 0, 0);
-      timedel.setHours(0, 0, 0, 0);
-      timedel.setHours(6);
-      timedel.setMinutes(30);
+      // const timedel = new Date();
+      // timedel.setDate(0, 0, 0, 0);
+      // timedel.setHours(0, 0, 0, 0);
+      // timedel.setHours(6);
+      // timedel.setMinutes(30);
       const fetchUrl =
         selectModal === 0
           ? `${process.env.REACT_APP_FETCH_URL}/admin/add_event`
@@ -115,8 +116,8 @@ const AdminEvents = ({ data, setData }) => {
         body: JSON.stringify({
           name: values.name,
           type: values.type,
-          start_date_time: dateString(from - timedel),
-          end_date_time: dateString(to - timedel),
+          start_date_time: dateString(from),
+          end_date_time: dateString(to),
           location: values.location,
           first_prize:
             values.type === "competition" ? values.first_prize : "None",
@@ -264,29 +265,33 @@ const AdminEvents = ({ data, setData }) => {
             />
 
             <div className="flex gap-4 w-full">
-              <div className="w-full">
-                <DateTimePicker
-                  mt="md"
-                  label="From"
-                  placeholder="From"
-                  value={from}
-                  onChange={setFrom}
-                  error={fromError.length !== 0}
-                />
-                <span className="text-xs text-red-500">{fromError}</span>
-              </div>
+              <DatesProvider
+                settings={{ timezone: "Asia/Calcutta" }}
+              >
+                <div className="w-full">
+                  <DateTimePicker
+                    mt="md"
+                    label="From"
+                    placeholder="From"
+                    value={from}
+                    onChange={setFrom}
+                    error={fromError.length !== 0}
+                  />
+                  <span className="text-xs text-red-500">{fromError}</span>
+                </div>
 
-              <div className="w-full">
-                <DateTimePicker
-                  mt="md"
-                  label="To"
-                  placeholder="Till"
-                  value={to}
-                  onChange={setTo}
-                  error={toError.length !== 0}
-                />
-                <span className="text-xs text-red-500">{toError}</span>
-              </div>
+                <div className="w-full">
+                  <DateTimePicker
+                    mt="md"
+                    label="To"
+                    placeholder="Till"
+                    value={to}
+                    onChange={setTo}
+                    error={toError.length !== 0}
+                  />
+                  <span className="text-xs text-red-500">{toError}</span>
+                </div>
+              </DatesProvider>
             </div>
 
             <TextInput
