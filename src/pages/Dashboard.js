@@ -50,8 +50,12 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    if (type === "admin") saveTab(5);
-    else saveTab(0);
+    console.log(!type, type);
+    if (!type) return;
+    var prevtab = localStorage.getItem("tab");
+    console.log(prevtab, localStorage.getItem("eid"), tab);
+    if (type === "admin") saveTab(prevtab ? prevtab : 5);
+    else saveTab(prevtab ? prevtab : 0);
   }, [type]);
 
   // fetch profile
@@ -105,6 +109,7 @@ const Dashboard = () => {
       });
   }, [type]);
 
+  //set organisers for admin
   useEffect(() => {
     if (type != "admin") {
       setLoading((prev) => ({ ...prev, fetch3: true }));
@@ -171,10 +176,13 @@ const Dashboard = () => {
   const saveTab = (tab) => {
     localStorage.setItem("tab", tab);
     console.log("TAB SAVED" + tab);
-    setTab(tab);
+    setTab(parseInt(tab));
   };
 
   const navigate = useNavigate();
+  useEffect(() => {
+    console.log("TABBBB: ", tab);
+  }, [tab]);
 
   if (!localStorage.getItem("access_token")) {
     return <Navigate to="/login" replace />;
@@ -360,6 +368,7 @@ const Dashboard = () => {
         )}
       </AppShell.Navbar>
 
+      {/* {tab !== undefined && ( */}
       <AppShell.Main>
         {!loading.fetch1 ||
         !loading.fetch2 ||
@@ -408,8 +417,13 @@ const Dashboard = () => {
           />
         ) : tab === 10 ? (
           <AdminNotif data={notifData} setData={setNotifData} />
-        ) : null}
+        ) : (
+          <span>
+            bruh {tab} {typeof tab}
+          </span>
+        )}
       </AppShell.Main>
+      {/* )} */}
     </AppShell>
   );
 };

@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Events = (props) => {
-
   const [filteredData, setFilteredData] = useState([]);
   const [search, setSearch] = useState("");
 
@@ -76,9 +75,10 @@ const Events = (props) => {
               className="w-full text-center bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-2"
               fullWidth
               onClick={() => {
-                props.setTab((prev) => 4);
+                props.setTab(4);
                 localStorage.setItem("tab", 4);
                 localStorage.setItem("eid", event.eid);
+                console.log(localStorage.getItem("tab"), event.eid);
                 props.setEid(event.eid);
               }}
             >

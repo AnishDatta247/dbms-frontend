@@ -15,6 +15,7 @@ import { ArrowLeft, Pen, IndianRupee } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Confetti from "./confetti";
+import { TailSpin } from "react-loader-spinner";
 
 const Event = (props) => {
   const [data, setData] = useState();
@@ -28,8 +29,11 @@ const Event = (props) => {
 
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     // Update the current date and time every second
+    console.log("IN EVENT PAGE");
     const intervalId = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
@@ -249,7 +253,7 @@ const Event = (props) => {
   //fetch event details
   useEffect(() => {
     if (!props.eid) return;
-
+    setLoading(true);
     fetch(`${process.env.REACT_APP_FETCH_URL}/event/${props.eid}`, {
       method: "GET",
       headers: {
@@ -261,6 +265,7 @@ const Event = (props) => {
       .then((data) => {
         setData(data);
         console.log("DATA: ", data, localStorage.getItem("radio"), radio);
+        setLoading(false);
       })
       .catch((e) => {
         toast.error(e.message);
@@ -304,7 +309,7 @@ const Event = (props) => {
         <ArrowLeft className="w-4 h-4" />
         Back
       </button>
-      {data && (
+      {data ? (
         <div className="flex flex-col gap-4">
           <div className="flex gap-4 items-center mt-4 mb-6">
             <div className="text-3xl font-semibold">{data.name}</div>
@@ -720,6 +725,10 @@ const Event = (props) => {
               </Table>
             </div>
           )}
+        </div>
+      ) : (
+        <div className="w-full mt-4 flex justify-center">
+          <TailSpin height={60} width={60} color="black" ariaLabel="loading" />
         </div>
       )}
     </div>
