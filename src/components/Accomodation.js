@@ -50,9 +50,13 @@ const Accomodation = () => {
     form.validate();
     if (!from) {
       setFromError("From date required");
+    } else if (from < new Date()) {
+      setFromError("From date is in the past");
     } else setFromError("");
     if (!to) {
       setToError("To date required");
+    } else if (to < from) {
+      setToError("To date must be after from");
     } else setToError("");
     if (Object.keys(form.errors).length > 0) {
       return;
