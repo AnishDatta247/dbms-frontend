@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { Info } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Button from "./button";
 
 const Accomodation = () => {
   const input = {
@@ -23,6 +24,8 @@ const Accomodation = () => {
   const [toError, setToError] = useState("");
 
   const [payment, setPayment] = useState(0);
+
+  const [loading, setLoading] = useState(false);
 
   const dateTimeFormatter = (dateTime) => {
     return format(dateTime, "dd MMM yyyy");
@@ -58,7 +61,6 @@ const Accomodation = () => {
       .then((response) => response.json())
       .then((resData) => {
         setData(resData);
-        console.log(resData);
       })
       .catch((e) => {
         toast.error(e.message);
@@ -66,6 +68,7 @@ const Accomodation = () => {
   }, []);
 
   const onSubmit = (values) => {
+    setLoading(true);
     form.validate();
     if (
       Object.keys(form.errors).length === 0 &&
@@ -74,7 +77,6 @@ const Accomodation = () => {
       from <= to &&
       from >= new Date()
     ) {
-      console.log(`${process.env.REACT_APP_FETCH_URL}/book_accomodation`);
       fetch(`${process.env.REACT_APP_FETCH_URL}/book_accomodation`, {
         method: "POST",
         headers: {
@@ -98,11 +100,12 @@ const Accomodation = () => {
             food_type: values.food_type,
             payment_amount: payment,
           });
-          console.log(resData);
           toast.success("Accomodation booked successfully");
+          setLoading(false);
         })
         .catch((e) => {
           toast.error(e.message);
+          setLoading(false);
         });
     }
     if (!from) {
@@ -148,7 +151,7 @@ const Accomodation = () => {
 
   return (
     <div className="px-4 py-1">
-      <div className="flex flex-col">
+      <div className="flex flex-col mb-4">
         <span className="font-semibold text-3xl">Food and Accomodation</span>
         <span className="text-sm font-semibold text-neutral-500">
           Choose food and accomodation details
@@ -248,13 +251,13 @@ const Accomodation = () => {
             <span className="text-sm font-medium">Payment</span>
             <div className="bg-neutral-200 px-4 py-2 rounded-md">{payment}</div>
           </div>
-          <button
+          <Button
             className="mt-4 w-fit bg-blue-500 px-4 py-2 rounded-md text-white
             font-semibold text-sm"
             type="submit"
-          >
-            Confirm
-          </button>
+            text="Confirm"
+            loading={loading}
+          />
         </form>
       )}
     </div>

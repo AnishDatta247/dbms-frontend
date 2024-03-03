@@ -2,10 +2,11 @@ import { Input, Modal, Select, Table, TextInput, Tooltip } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Button from "./button";
 
 const AdminOrganisers = (props) => {
   const [data, setData] = useState();
@@ -13,13 +14,12 @@ const AdminOrganisers = (props) => {
   const [modalData, setModalData] = useState();
   const [selectModal, setSelectModal] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    console.log(props.organiserdata);
     if (!props.organiserdata) return;
     setData(props.organiserdata);
   }, [search, props.organiserdata]);
-
-  console.log(data);
 
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
@@ -51,11 +51,7 @@ const AdminOrganisers = (props) => {
   };
 
   const onDelete = (oid) => {
-    console.log("DELETING: ", oid);
-    console.log(
-      "DELETING: ",
-      `${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/` + oid
-    );
+    setLoading(true);
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_organiser/` + oid, {
       method: "DELETE",
       headers: {
@@ -68,19 +64,21 @@ const AdminOrganisers = (props) => {
         close2();
         setData((prev) => prev.filter((organiser) => organiser.oid !== oid));
         toast.success("Organiser Deleted");
+        setLoading(false);
       })
       .catch((e) => {
         toast.error(e.message);
+        setLoading(false);
       });
   };
 
   const onSubmit = (values) => {
-    console.log(values);
-
     form.validate();
     if (Object.keys(form.errors).length > 0) {
       return;
     }
+
+    setLoading(true);
 
     const url =
       selectModal === 1 ? "/admin/update_organiser" : "/admin/add_organiser";
@@ -138,9 +136,11 @@ const AdminOrganisers = (props) => {
         toast.success(
           selectModal === 0 ? "Organiser Added" : "Organiser Updated"
         );
+        setLoading(false);
       })
       .catch((e) => {
         toast.error(e.message);
+        setLoading(false);
       });
   };
 
@@ -177,12 +177,12 @@ const AdminOrganisers = (props) => {
               disabled={selectModal === 1}
               {...form.getInputProps("password")}
             />
-            <button
-              type="submit"
+            <Button
+              type="Submit"
               className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-            >
-              Submit
-            </button>
+              text="Submit"
+              loading={loading}
+            />
           </form>
         </Modal>
         <Modal
@@ -192,12 +192,12 @@ const AdminOrganisers = (props) => {
           onClose={close2}
         >
           <p>Do you want to delete this organiser?</p>
-          <button
+          <Button
             onClick={() => onDelete(modalData.oid)}
             className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-          >
-            Delete
-          </button>
+            text="Delete"
+            loading={loading}
+          />
         </Modal>
         <Modal
           centered

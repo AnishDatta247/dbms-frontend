@@ -1,8 +1,12 @@
+import { set } from "date-fns";
 import { IndianRupee } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Button from "./button";
 
 const AdminNotif = ({ data, setData }) => {
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/notifs`, {
       method: "GET",
@@ -14,11 +18,11 @@ const AdminNotif = ({ data, setData }) => {
       .then((res) => res.json())
       .then((resData) => {
         setData(resData);
-        console.log(resData);
       });
   }, []);
 
   const onApprove = (notif) => {
+    setLoading(true);
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/approve_organiser`, {
       method: "POST",
       headers: {
@@ -31,10 +35,12 @@ const AdminNotif = ({ data, setData }) => {
       .then((resData) => {
         setData(data.filter((d) => d !== notif));
         toast.success(resData.message);
+        setLoading(false);
       });
   };
 
   const onReject = (notif) => {
+    setLoading(true);
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/reject_organiser`, {
       method: "POST",
       headers: {
@@ -47,6 +53,7 @@ const AdminNotif = ({ data, setData }) => {
       .then((resData) => {
         setData(data.filter((d) => d !== notif));
         toast.success(resData.message);
+        setLoading(false);
       });
   };
 
@@ -77,18 +84,16 @@ const AdminNotif = ({ data, setData }) => {
           </div>
           <div className="flex gap-4">
             {/* <div className="w-[1px] border h-8 mx-2" /> */}
-            <button
+            <Button
               onClick={() => onApprove(notif)}
               className="bg-blue-500 text-white text-sm font-semibold px-4 py-1.5 rounded-md"
-            >
-              Approve
-            </button>
-            <button
+              text="Approve"
+            />
+            <Button
               onClick={() => onReject(notif)}
               className="border-red-500 border text-red-500 text-sm font-semibold px-4 py-1.5 rounded-md"
-            >
-              Reject
-            </button>
+              text="Reject"
+            />
           </div>
         </div>
       ))}

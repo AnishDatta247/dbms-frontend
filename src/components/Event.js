@@ -10,12 +10,13 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { ArrowLeft, Pen, IndianRupee } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Confetti from "./confetti";
 import { TailSpin } from "react-loader-spinner";
+import Button from "./button";
 
 const Event = (props) => {
   const [data, setData] = useState();
@@ -30,10 +31,10 @@ const Event = (props) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
 
   useEffect(() => {
     // Update the current date and time every second
-    console.log("IN EVENT PAGE");
     const intervalId = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
@@ -99,6 +100,7 @@ const Event = (props) => {
 
   const onClick1 = () => {
     //register
+    setLoading(true);
     let status;
     fetch(
       `${process.env.REACT_APP_FETCH_URL}/event/register_student/${props.eid}`,
@@ -117,6 +119,7 @@ const Event = (props) => {
       .then((resData) => {
         if (status !== 200) {
           toast.error(resData.message);
+          setLoading(false);
         } else {
           setData((prev) => {
             return { ...prev, registered: true };
@@ -128,14 +131,19 @@ const Event = (props) => {
             })
           );
           toast.success("Registered for event!");
+          setLoading(false);
         }
       })
-      .catch((e) => toast.error(e.message));
+      .catch((e) => {
+        toast.error(e.message);
+        setLoading(false);
+      });
     close1();
   };
 
   const onClick2 = () => {
     //volunteer
+    setLoading(true);
     let status;
     fetch(
       `${process.env.REACT_APP_FETCH_URL}/event/volunteer_student/${props.eid}`,
@@ -158,6 +166,7 @@ const Event = (props) => {
       .then((resData) => {
         if (status !== 200) {
           toast.error(resData.message);
+          setLoading(false);
         } else {
           setData((prev) => {
             return { ...prev, volunteered: true };
@@ -169,14 +178,19 @@ const Event = (props) => {
             })
           );
           toast.success("Volunteering for event!");
+          setLoading(false);
         }
       })
-      .catch((e) => toast.error(e.message));
+      .catch((e) => {
+        toast.error(e.message);
+        setLoading(false);
+      });
     close2();
   };
 
   const onClick3 = () => {
     // Sponsor
+    setLoading(true);
     let status;
     fetch(`${process.env.REACT_APP_FETCH_URL}/event/sponsor/${props.eid}`, {
       method: "POST",
@@ -195,6 +209,7 @@ const Event = (props) => {
       .then((resData) => {
         if (status !== 200) {
           toast.error(resData.message);
+          setLoading(false);
         } else {
           setData((prev) => {
             return { ...prev, sponsored: "pending" };
@@ -206,14 +221,19 @@ const Event = (props) => {
             })
           );
           toast.info("Sponsorship request sent to admin.");
+          setLoading(false);
         }
       })
-      .catch((e) => toast.error(e.message));
+      .catch((e) => {
+        toast.error(e.message);
+        setLoading(false);
+      });
     close3();
     form2.reset();
   };
 
   const onSubmit = (values) => {
+    setLoading2(true);
     fetch(
       `${process.env.REACT_APP_FETCH_URL}/organiser/set_winners/${props.eid}`,
       {
@@ -238,8 +258,12 @@ const Event = (props) => {
           third_winner: values.third_winner,
         }));
         toast.success("Winners declared!");
+        setLoading2(false);
       })
-      .catch((e) => toast.error(e.message));
+      .catch((e) => {
+        toast.error(e.message);
+        setLoading2(false);
+      });
   };
 
   const getRoleInfo = (role) => {
@@ -264,7 +288,7 @@ const Event = (props) => {
       .then((response) => response.json())
       .then((data) => {
         setData(data);
-        console.log("DATA: ", data, localStorage.getItem("radio"), radio);
+        console.log(data);
         setLoading(false);
       })
       .catch((e) => {
@@ -274,6 +298,7 @@ const Event = (props) => {
 
   // fetch student profile from organizer
   const onClick4 = (sid) => {
+    setLoading2(true);
     fetch(`${process.env.REACT_APP_FETCH_URL}/organiser/student/${sid}`, {
       method: "GET",
       headers: {
@@ -286,10 +311,11 @@ const Event = (props) => {
         props.setDataViewProfile(data);
         localStorage.setItem("tab", 9);
         props.setTab(9);
-        console.log(data, localStorage.getItem("tab"));
+        setLoading2(false);
       })
       .catch((e) => {
         toast.error(e.message);
+        setLoading2(false);
       });
   };
 
@@ -344,12 +370,12 @@ const Event = (props) => {
                     <p className="font-medium">
                       {" " + data.name} {"(" + data.type + ")"}
                     </p>
-                    <button
+                    <Button
                       onClick={onClick1}
                       className="mt-4 bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
-                    >
-                      Confirm
-                    </button>
+                      text="Confirm"
+                      loading={loading}
+                    />
                   </Modal>
                   <button
                     onClick={() => {
@@ -405,12 +431,12 @@ const Event = (props) => {
                           {getRoleInfo(form1.values.role)}
                         </span>
                       </div>
-                      <button
-                        action="submit"
+                      <Button
+                        type="submit"
                         className="mt-4 bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
-                      >
-                        Confirm
-                      </button>
+                        text="Confirm"
+                        loading={loading}
+                      />
                     </form>
                   </Modal>
                   <button
@@ -454,6 +480,12 @@ const Event = (props) => {
                         label="Sponsorship Amount"
                         placeholder="Choose amount for the sponsorship"
                         {...form2.getInputProps("sponsorship_amount")}
+                      />
+                      <Button
+                        type="submit"
+                        className="mt-4 bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
+                        text="Confirm"
+                        loading={loading}
                       />
                       <button
                         type="submit"
@@ -523,14 +555,14 @@ const Event = (props) => {
                     2nd Place
                   </span>
                   <span className="text-lg">{data.second_winner.name}</span>
-                  <span className="text-sm">{data.first_winner.email}</span>
+                  <span className="text-sm">{data.second_winner.email}</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="border-[#b08d57] text-[#b08d57] font-semibold w-fit">
                     3rd Place
                   </span>
                   <span className="text-lg">{data.third_winner.name}</span>
-                  <span className="text-sm">{data.first_winner.email}</span>
+                  <span className="text-sm">{data.third_winner.email}</span>
                 </div>
               </div>
             </div>
@@ -612,12 +644,12 @@ const Event = (props) => {
                       {...form3.getInputProps("third_winner")}
                     />
                     {!data.first_winner && (
-                      <button
+                      <Button
                         type="submit"
                         className="bg-blue-500 text-white px-4 py-2 rounded-lg w-fit h-fit mt-3 text-sm font-semibold"
-                      >
-                        Declare
-                      </button>
+                        text="Declare"
+                        loading={loading2}
+                      />
                     )}
                   </div>
                 </form>

@@ -50,10 +50,8 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    console.log(!type, type);
     if (!type) return;
     var prevtab = localStorage.getItem("tab");
-    console.log(prevtab, localStorage.getItem("eid"), tab);
     if (type === "admin") saveTab(prevtab ? prevtab : 5);
     else saveTab(prevtab ? prevtab : 0);
   }, [type]);
@@ -80,7 +78,6 @@ const Dashboard = () => {
           setType("admin");
           setTab(5);
         }
-        console.log(data);
         setLoading((prev) => ({ ...prev, fetch1: true }));
       })
       .catch((e) => {
@@ -145,7 +142,6 @@ const Dashboard = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setEvents(data);
         setLoading((prev) => ({ ...prev, fetch4: true }));
       })
@@ -176,13 +172,11 @@ const Dashboard = () => {
 
   const saveTab = (tab) => {
     localStorage.setItem("tab", tab);
-    console.log("TAB SAVED" + tab);
     setTab(parseInt(tab));
   };
 
   const navigate = useNavigate();
   useEffect(() => {
-    console.log("TABBBB: ", tab);
   }, [tab]);
 
   if (!localStorage.getItem("access_token")) {

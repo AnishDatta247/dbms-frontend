@@ -78,7 +78,6 @@ const Events = (props) => {
                 props.setTab(4);
                 localStorage.setItem("tab", 4);
                 localStorage.setItem("eid", event.eid);
-                console.log(localStorage.getItem("tab"), event.eid);
                 props.setEid(event.eid);
               }}
             >

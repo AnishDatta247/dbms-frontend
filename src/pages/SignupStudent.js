@@ -1,18 +1,14 @@
 import { useForm } from "@mantine/form";
-import {
-  TextInput,
-  Button,
-  Stepper,
-  Group,
-  NativeSelect,
-  Select,
-} from "@mantine/core";
-import { Link, Navigate } from "react-router-dom";
+import { TextInput, Stepper, Select } from "@mantine/core";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Button from "../components/button";
 
 const SignupStudent = (props) => {
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const onSubmit = async (values) => {
     setLoading(true);
@@ -32,6 +28,8 @@ const SignupStudent = (props) => {
           toast.error(jsonData.message);
         } else {
           toast.success(jsonData.message);
+          setLoading(false);
+          navigate("/login");
           return jsonData;
         }
         setLoading(false);
@@ -223,14 +221,21 @@ const SignupStudent = (props) => {
               Next step
             </button>
           ) : (
-            <button
-              // type="submit"
-              disabled={loading}
-              onClick={nextStep}
+            <Button
+              type="submit"
+              loading={loading}
               className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-2"
-            >
-              Submit
-            </button>
+              text="Submit"
+              onClick={nextStep}
+            />
+            // <button
+            //   // type="submit"
+            //   disabled={loading}
+            //   onClick={nextStep}
+            //   className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-2"
+            // >
+            //   Submit
+            // </button>
           )}
         </div>
         <Link

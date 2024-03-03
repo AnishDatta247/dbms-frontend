@@ -10,10 +10,11 @@ import {
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Button from "./button";
 
 const AdminStudents = (props) => {
   const [data, setData] = useState();
@@ -21,8 +22,9 @@ const AdminStudents = (props) => {
   const [modalData, setModalData] = useState();
   const [selectModal, setSelectModal] = useState();
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    console.log(props.studentdata);
     if (!props.studentdata) return;
     setData(props.studentdata);
   }, [search, props.studentdata]);
@@ -73,11 +75,7 @@ const AdminStudents = (props) => {
   };
 
   const onDelete = (sid) => {
-    console.log("DELETING: ", sid);
-    console.log(
-      "DELETING: ",
-      `${process.env.REACT_APP_FETCH_URL}/admin/remove_student/` + sid
-    );
+    setLoading(true);
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/remove_student/` + sid, {
       method: "DELETE",
       headers: {
@@ -90,19 +88,20 @@ const AdminStudents = (props) => {
         setData((prev) => prev.filter((student) => student.sid !== sid));
         close2();
         toast.success("Student Deleted");
+        setLoading(false);
       })
       .catch((e) => {
         toast.error(e.message);
+        setLoading(false);
       });
   };
 
   const onSubmit = (values) => {
-    console.log("HIII");
+    setLoading(true);
     const url =
       selectModal === 0
         ? `${process.env.REACT_APP_FETCH_URL}/admin/add_student`
         : `${process.env.REACT_APP_FETCH_URL}/admin/update_student`;
-    console.log(url);
     fetch(url, {
       method: selectModal === 0 ? "POST" : "PUT",
       headers: {
@@ -137,7 +136,6 @@ const AdminStudents = (props) => {
     })
       .then((response) => response.json())
       .then((resData) => {
-        console.log(resData);
         close1();
         form.reset();
         if (selectModal === 0) setData((prev) => [...prev, values]);
@@ -150,10 +148,11 @@ const AdminStudents = (props) => {
             )
           );
         toast.success(selectModal === 0 ? "Student Added" : "Student Updated");
+        setLoading(false);
       })
       .catch((e) => {
         toast.error(e.message);
-        console.log(e);
+        setLoading(false);
       });
     close1();
   };
@@ -169,12 +168,12 @@ const AdminStudents = (props) => {
           onClose={close2}
         >
           <p>Do you want to delete this student?</p>
-          <button
+          <Button
             onClick={() => onDelete(modalData.sid)}
             className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-          >
-            Delete
-          </button>
+            text="Delete"
+            loading={loading}
+          />
         </Modal>
         <Modal
           centered
@@ -272,13 +271,12 @@ const AdminStudents = (props) => {
                 { value: "external", label: "Guest" },
               ]}
             />
-            <button
-              onClick={() => console.log(form.values)}
-              action="submit"
+            <Button
+              type="submit"
               className="mt-2 w-fit bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
-            >
-              Submit
-            </button>
+              text="Submit"
+              loading={loading}
+            />
           </form>
         </Modal>
       </div>

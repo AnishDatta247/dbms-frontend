@@ -15,6 +15,7 @@ import { ArrowLeft, Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import Button from "./button";
 
 const Profile = ({ type, data, backButton, setTab }) => {
   const [currentData, setCurrentData] = useState();
@@ -23,14 +24,14 @@ const Profile = ({ type, data, backButton, setTab }) => {
   const [selectModal, setSelectModal] = useState();
   const [password, setPassword] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!data) return;
     setCurrentData(data);
   }, [search, data]);
-
-  console.log("data", data);
 
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
   const [opened2, { open: open2, close: close2 }] = useDisclosure();
@@ -96,12 +97,11 @@ const Profile = ({ type, data, backButton, setTab }) => {
   });
 
   const onSubmit = (values) => {
-    console.log("HIII");
+    setLoading(true);
     const url =
       selectModal === 0
         ? `${process.env.REACT_APP_FETCH_URL}/student/edit_student`
         : `${process.env.REACT_APP_FETCH_URL}/organiser/edit_organiser`;
-    console.log(url);
     fetch(url, {
       method: "PUT",
       headers: {
@@ -133,8 +133,6 @@ const Profile = ({ type, data, backButton, setTab }) => {
     })
       .then((response) => response.json())
       .then((resData) => {
-        console.log(resData);
-        close1();
         selectModal == 0 ? form_student.reset() : form_organiser.reset();
         if (selectModal === 0) {
           setCurrentData((prev) => ({ ...prev, ...values }));
@@ -146,21 +144,22 @@ const Profile = ({ type, data, backButton, setTab }) => {
             ? "Student Profile Updated"
             : "Organiser Profile Updated"
         );
+        setLoading(false);
+        selectModal === 0 ? close1() : close2();
       })
       .catch((e) => {
         toast.error(e.message);
-        console.log(e);
+        setLoading(false);
       });
-    selectModal === 0 ? close1() : close2();
   };
 
   const onDelete = () => {
+    setLoading(true);
     let status;
     const url =
       type === "student"
         ? `${process.env.REACT_APP_FETCH_URL}/student/delete_student`
         : `${process.env.REACT_APP_FETCH_URL}/organiser/delete_organiser`;
-    console.log(url);
     fetch(url, {
       method: "DELETE",
       headers: {
@@ -176,7 +175,6 @@ const Profile = ({ type, data, backButton, setTab }) => {
         return response.json();
       })
       .then((resData) => {
-        console.log(resData);
         close3();
 
         if (status !== 200) {
@@ -190,13 +188,14 @@ const Profile = ({ type, data, backButton, setTab }) => {
             ? "Student Profile Deleted"
             : "Organiser Profile Deleted"
         );
+        setLoading(false);
         localStorage.removeItem("access_token");
         localStorage.removeItem("tab");
         navigate("/login");
       })
       .catch((e) => {
         toast.error(e.message);
-        console.log(e);
+        setLoading(false);
       });
   };
 
@@ -254,12 +253,12 @@ const Profile = ({ type, data, backButton, setTab }) => {
                   type="password"
                   {...form_organiser.getInputProps("password")}
                 />
-                <button
+                <Button
                   type="submit"
                   className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-                >
-                  Submit
-                </button>
+                  text="Submit"
+                  loading={loading}
+                />
               </form>
             </Modal>
             <Modal
@@ -355,13 +354,12 @@ const Profile = ({ type, data, backButton, setTab }) => {
                     { value: "external", label: "Guest" },
                   ]}
                 />
-                <button
-                  onClick={() => console.log(form_student.values)}
-                  action="submit"
+                <Button
+                  type="submit"
                   className="mt-2 w-fit bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
-                >
-                  Submit
-                </button>
+                  text="Submit"
+                  loading={loading}
+                />
               </form>
             </Modal>
           </div>
@@ -445,7 +443,6 @@ const Profile = ({ type, data, backButton, setTab }) => {
                     year: currentData.year.toString(),
                     // print
                   });
-              console.log("currentData", currentData);
               setModalData(currentData);
               type == "organiser" ? open2() : open1();
             }}
@@ -472,12 +469,12 @@ const Profile = ({ type, data, backButton, setTab }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button
+            <Button
               onClick={onDelete}
               className="w-full bg-red-500 text-white font-semibold px-4 py-2 rounded-md mt-4 text-sm"
-            >
-              Delete Account
-            </button>
+              text="Delete Account"
+              loading={loading}
+            />
           </Modal>
         </div>
       )}

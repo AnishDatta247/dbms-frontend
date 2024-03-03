@@ -2,8 +2,13 @@ import { Drama } from "lucide-react";
 import Logo from "../components/Logo";
 import { Link } from "react-router-dom";
 import { TypeAnimation } from "react-type-animation";
+import { useEffect, useState } from "react";
 
 const Landing = () => {
+  const [loggedIn, setLoggedIn] = useState(
+    localStorage.getItem("access_token") ? true : false
+  );
+
   return (
     <div className="w-full h-screen bg-slate-200 flex flex-col items-center gap-8 justify-center pb-12 px-8">
       <div className="flex gap-2">
@@ -19,20 +24,32 @@ const Landing = () => {
 
       <span className="text-2xl font-light -mt-6">IIT Kharagpur</span>
 
-      <div className="fixed flex w-full top-4 px-4 gap-4 justify-between md:justify-end">
-        <Link
-          to="signup"
-          className="bg-blue-500 font-semibold text-white rounded-lg px-4 py-2"
-        >
-          Signup
-        </Link>
-        <Link
-          to="/login"
-          className="border border-slate-600 font-semibold text-slate-600 rounded-lg px-4 py-2"
-        >
-          Login
-        </Link>
-      </div>
+      {!loggedIn && (
+        <div className="fixed flex w-full top-4 px-4 gap-4 justify-between md:justify-end">
+          <Link
+            to="signup"
+            className="bg-indigo-500 font-semibold text-white rounded-lg px-4 py-2"
+          >
+            Signup
+          </Link>
+          <Link
+            to="/login"
+            className="border border-slate-600 font-semibold text-slate-600 rounded-lg px-4 py-2"
+          >
+            Login
+          </Link>
+        </div>
+      )}
+      {loggedIn && (
+        <div className="fixed flex w-full top-4 px-4 gap-4 justify-between md:justify-end">
+          <Link
+            to="dashboard"
+            className="bg-indigo-500 font-semibold text-white rounded-lg px-4 py-2"
+          >
+            Dashboard
+          </Link>
+        </div>
+      )}
 
       <div className="flex flex-col items-center font-semibold font-[satoshi] gap-1">
         <span className="text-xl">Get ready for</span>

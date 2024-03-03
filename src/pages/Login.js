@@ -1,5 +1,6 @@
 import { useForm } from "@mantine/form";
-import { TextInput, Button, Modal } from "@mantine/core";
+import { TextInput, Modal } from "@mantine/core";
+import Button from "../components/button";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import { toast } from "sonner";
@@ -16,7 +17,6 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     setLoading(true);
-    console.log(`${process.env.REACT_APP_FETCH_URL}/login`);
     await fetch(`${process.env.REACT_APP_FETCH_URL}/login`, {
       method: "POST",
       headers: {
@@ -62,6 +62,7 @@ const Login = () => {
   });
 
   const onSubmit2 = (values) => {
+    setLoading(true);
     let status;
     fetch(`${process.env.REACT_APP_FETCH_URL}/forgot_password`, {
       method: "POST",
@@ -77,15 +78,17 @@ const Login = () => {
       .then((resData) => {
         if (status !== 200) {
           toast.error(resData.message);
-          form2.reset();
+          setLoading(false);
           return;
         }
         toast.success(resData.message);
-        form2.reset();
         close();
+        setLoading(false);
+        form2.reset();
       })
       .catch((e) => {
         toast.error(e.message);
+        setLoading(false);
       });
   };
 
@@ -115,25 +118,12 @@ const Login = () => {
             placeholder="Password"
             {...form.getInputProps("password")}
           />
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className={
-              loading
-                ? "flex flex-row gap-4 justify-center bg-slate-400 text-white px-4 py-2 rounded-md w-full mt-6 text-sm font-semibold cursor-not-allowed"
-                : "bg-blue-500 px-4 py-2 rounded-md w-full text-white font-semibold text-sm mt-6"
-            }
-          >
-            {loading && (
-              <TailSpin
-                height={20}
-                width={20}
-                color="white"
-                ariaLabel="loading"
-              />
-            )}
-            Submit
-          </button>
+            className="bg-blue-500 px-4 py-2 rounded-md w-full text-white font-semibold text-sm mt-6"
+            text="Submit"
+            loading={loading}
+          />
         </form>
         <div className="flex justify-between w-full">
           <Modal
@@ -148,9 +138,14 @@ const Login = () => {
                 placeholder="Send new password to..."
                 {...form2.getInputProps("email")}
               />
-              <button className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6">
+              <Button
+                className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
+                text="Send Email"
+                loading={loading}
+              />
+              {/* <button className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6">
                 Send Email
-              </button>
+              </button> */}
             </form>
           </Modal>
           <Link

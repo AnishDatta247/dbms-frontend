@@ -16,6 +16,7 @@ import { Info, Pen, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import "dayjs/locale/en-in";
+import Button from "./button";
 
 const AdminEvents = ({ data, setData }) => {
   const [opened1, { open: open1, close: close1 }] = useDisclosure();
@@ -28,6 +29,9 @@ const AdminEvents = ({ data, setData }) => {
   const [to, setTo] = useState(null);
   const [fromError, setFromError] = useState("");
   const [toError, setToError] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
   const form = useForm({
     initialValues: {
       name: "",
@@ -65,7 +69,7 @@ const AdminEvents = ({ data, setData }) => {
   };
 
   const onDelete = (eid) => {
-    console.log(eid);
+    setLoading(true);
     fetch(`${process.env.REACT_APP_FETCH_URL}/admin/delete_event/` + eid, {
       method: "DELETE",
       headers: {
@@ -78,9 +82,11 @@ const AdminEvents = ({ data, setData }) => {
         setData((prev) => prev.filter((event) => event.eid !== eid));
         close2();
         toast.success("Event deleted");
+        setLoading(false);
       })
       .catch((e) => {
         toast.error(e.message);
+        setLoading(false);
       });
   };
 
@@ -97,6 +103,7 @@ const AdminEvents = ({ data, setData }) => {
       from <= to &&
       from >= new Date()
     ) {
+      setLoading(true);
       from.setHours(from.getHours() - 5);
       from.setMinutes(from.getMinutes() - 30);
       to.setHours(to.getHours() - 5);
@@ -184,9 +191,11 @@ const AdminEvents = ({ data, setData }) => {
               )
             );
           toast.success(selectModal === 0 ? "Event Added" : "Event Updated");
+          setLoading(false);
         })
         .catch((e) => {
           toast.error(e.message);
+          setLoading(false);
         });
     }
     if (!from) {
@@ -229,15 +238,12 @@ const AdminEvents = ({ data, setData }) => {
         >
           <p>Do you want to delete this event?</p>
           <p>{modalData && modalData.name}</p>
-          <button
-            onClick={() => {
-              onDelete(modalData.eid);
-              console.log(modalData.eid);
-            }}
+          <Button
+            onClick={() => onDelete(modalData.eid)}
             className="bg-red-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-          >
-            Delete
-          </button>
+            text="Delete"
+            loading={loading}
+          />
         </Modal>
 
         <Modal
@@ -325,12 +331,12 @@ const AdminEvents = ({ data, setData }) => {
               placeholder="Info"
               {...form.getInputProps("info")}
             />
-            <button
+            <Button
               type="submit"
               className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-            >
-              Submit
-            </button>
+              text="Submit"
+              loading={loading}
+            />
           </form>
         </Modal>
       </div>
@@ -351,72 +357,61 @@ const AdminEvents = ({ data, setData }) => {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {
-            // console.log(data);
-            data &&
-              data.map((event) => (
-                <Table.Tr key={event.eid}>
-                  <Table.Td>{event.name}</Table.Td>
-                  <Table.Td className="capitalize">{event.type}</Table.Td>
-                  <Table.Td>
-                    {dateTimeFormatter(event.start_date_time)}
-                  </Table.Td>
-                  <Table.Td>{dateTimeFormatter(event.end_date_time)}</Table.Td>
-                  <Table.Td>{event.location}</Table.Td>
-                  <Table.Td>{event.first_prize}</Table.Td>
-                  <Table.Td>{event.second_prize}</Table.Td>
-                  <Table.Td>{event.third_prize}</Table.Td>
-                  <Table.Td>
-                    <Info
-                      onClick={() => {
-                        setModalData(event);
-                        open1();
-                      }}
-                      className="w-4 h-4"
-                    />
-                  </Table.Td>
-                  <Table.Td>
-                    <Pen
-                      onClick={() => {
-                        setSelectModal(1); //modal opens for update functionality
-                        form.setValues({
-                          name: event.name,
-                          type: event.type,
-                          location: event.location,
-                          first_prize:
-                            event.type === "competition"
-                              ? event.first_prize
-                              : 0,
-                          second_prize:
-                            event.type === "competition"
-                              ? event.second_prize
-                              : 0,
-                          third_prize:
-                            event.type === "competition"
-                              ? event.third_prize
-                              : 0,
-                          info: event.info,
-                        });
-                        setFrom(new Date(event.start_date_time));
-                        setTo(new Date(event.end_date_time));
-                        setModalData(event);
-                        open3();
-                      }}
-                      className="cursor-pointer w-5 h-5"
-                    />
-                  </Table.Td>
-                  <Table.Td>
-                    <Trash2
-                      onClick={() => {
-                        setModalData(event);
-                        open2();
-                      }}
-                      className="cursor-pointer w-5 h-5 text-red-600"
-                    />
-                  </Table.Td>
-                </Table.Tr>
-              ))
-          }
+          {data &&
+            data.map((event) => (
+              <Table.Tr key={event.eid}>
+                <Table.Td>{event.name}</Table.Td>
+                <Table.Td className="capitalize">{event.type}</Table.Td>
+                <Table.Td>{dateTimeFormatter(event.start_date_time)}</Table.Td>
+                <Table.Td>{dateTimeFormatter(event.end_date_time)}</Table.Td>
+                <Table.Td>{event.location}</Table.Td>
+                <Table.Td>{event.first_prize}</Table.Td>
+                <Table.Td>{event.second_prize}</Table.Td>
+                <Table.Td>{event.third_prize}</Table.Td>
+                <Table.Td>
+                  <Info
+                    onClick={() => {
+                      setModalData(event);
+                      open1();
+                    }}
+                    className="w-4 h-4"
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <Pen
+                    onClick={() => {
+                      setSelectModal(1); //modal opens for update functionality
+                      form.setValues({
+                        name: event.name,
+                        type: event.type,
+                        location: event.location,
+                        first_prize:
+                          event.type === "competition" ? event.first_prize : 0,
+                        second_prize:
+                          event.type === "competition" ? event.second_prize : 0,
+                        third_prize:
+                          event.type === "competition" ? event.third_prize : 0,
+                        info: event.info,
+                      });
+                      setFrom(new Date(event.start_date_time));
+                      setTo(new Date(event.end_date_time));
+                      setModalData(event);
+                      open3();
+                    }}
+                    className="cursor-pointer w-5 h-5"
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <Trash2
+                    onClick={() => {
+                      setModalData(event);
+                      open2();
+                    }}
+                    className="cursor-pointer w-5 h-5 text-red-600"
+                  />
+                </Table.Td>
+              </Table.Tr>
+            ))}
         </Table.Tbody>
       </Table>
       <button

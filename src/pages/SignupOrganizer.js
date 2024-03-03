@@ -1,11 +1,14 @@
 import { useForm } from "@mantine/form";
-import { TextInput, Button } from "@mantine/core";
-import { Link, Navigate } from "react-router-dom";
+import { TextInput } from "@mantine/core";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
+import Button from "../components/button";
 
 const SignupOrganizer = () => {
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const onSubmit = async (values) => {
     setLoading(true);
@@ -22,6 +25,7 @@ const SignupOrganizer = () => {
           toast.error(jsonData.message);
         } else {
           toast.success(jsonData.message);
+          navigate("/login");
         }
         setLoading(false);
       })
@@ -105,12 +109,12 @@ const SignupOrganizer = () => {
             >
               Prev
             </Link>
-            <button
+            <Button
               type="submit"
               className="bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm mt-6"
-            >
-              Submit
-            </button>
+              text="Submit"
+              loading={loading}
+            />
           </div>
         </form>
         <Link
