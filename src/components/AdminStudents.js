@@ -220,9 +220,8 @@ const AdminStudents = (props) => {
             </div>
 
             <TextInput
-              mt="sm"
               label="College"
-              placeholder="IIT KGP"
+              placeholder="College"
               {...form.getInputProps("college")}
             />
             <Select
