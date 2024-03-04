@@ -487,12 +487,12 @@ const Event = (props) => {
                         text="Confirm"
                         loading={loading}
                       />
-                      <button
+                      {/* <button
                         type="submit"
                         className="mt-4 bg-blue-500 px-4 py-2 rounded-md text-white font-semibold text-sm"
                       >
                         Confirm
-                      </button>
+                      </button> */}
                     </form>
                   </Modal>
                   <button
@@ -661,14 +661,14 @@ const Event = (props) => {
             <div className="mt-4 flex flex-col gap-2">
               <span className="font-semibold text-xl">Event Details</span>
               <div className="flex gap-8">
-                <Radio
+                {/* <Radio
                   label="Logistics"
                   checked={radio === 0}
                   onChange={() => {
                     setRadio(0);
                     localStorage.setItem("radio", 0);
                   }}
-                />
+                /> */}
                 <Radio
                   label="Participants"
                   checked={radio === 1}
