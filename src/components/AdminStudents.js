@@ -204,11 +204,6 @@ const AdminStudents = (props) => {
               {...form.getInputProps("password")}
             />
 
-            <TextInput
-              label="College"
-              placeholder="College"
-              {...form.getInputProps("college")}
-            />
 
             <div className="flex gap-4">
               <TextInput
@@ -226,9 +221,8 @@ const AdminStudents = (props) => {
             </div>
 
             <TextInput
-              mt="sm"
               label="College"
-              placeholder="IIT KGP"
+              placeholder="College"
               {...form.getInputProps("college")}
             />
             <Select
