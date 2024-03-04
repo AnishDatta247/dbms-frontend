@@ -204,12 +204,6 @@ const AdminStudents = (props) => {
               {...form.getInputProps("password")}
             />
 
-            <TextInput
-              label="College"
-              placeholder="College"
-              {...form.getInputProps("college")}
-            />
-
             <div className="flex gap-4">
               <TextInput
                 className="w-full"
